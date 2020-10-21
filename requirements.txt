@@ -1,0 +1,19 @@
+torch
+torchtext
+torchvision
+tensorflow
+keras
+trax
+matplotlib
+seaborn
+spacy
+nltk
+numpy # a bit picky with tensorflow
+pandas
+scipy
+scikit-learn
+scikit-image
+albumentations
+jupyter
+cython
+tqdm

@@ -4,6 +4,7 @@ import torch.optim as optim
 
 from torchtext import data, datasets
 import pandas as pd
+from tqdm import tqdm
 
 import spacy
 import numpy as np
@@ -13,12 +14,14 @@ import math
 import time
 
 from seq2seq import utils, helpers
+import re
+import os
 
 # Build model and initialize
 MODEL_NAME = "s2s_6_transformer"
-DATASET_NAME = "miguel"  # multi30k
+DATASET_NAME = "miguel"  # multi30k, miguel
 DATASET_PATH = f".data/{DATASET_NAME}"
-TRAIN = False
+TRAIN = True
 EVALUATE = True
 BLUE = True
 LEARNING_RATE = 0.0005
@@ -45,21 +48,39 @@ def clean_file(file_src, file_trg, lang_src, lang_trg):
     data_raw = {lang_src: [line for line in file_src], lang_trg: [line for line in file_trg]}
     data_df = pd.DataFrame(data_raw, columns=[lang_src, lang_trg])
 
+    # Add fields
+    data_df[f"{lang_src}_len"] = data_df[lang_src].str.count(' ')
+    data_df[f"{lang_trg}_len"] = data_df[lang_trg].str.count(' ')
+
+    # Preprocess file
+    # data_df = data_df.query(f"{lang_src}_len < {80} & {lang_trg}_len < {80}")
+    # data_df = data_df.query(f'{lang_src}_len < {lang_trg}_len * 1.5 & {lang_src}_len * 1.5 > {lang_trg}_len')
+
+    p = re.compile("^<seg id=\"\d+\">")
+    for index, row in tqdm(data_df.iterrows(), total=len(data_df)):
+        row[lang_src] = p.sub('', row[lang_src])
+        row[lang_trg] = p.sub('', row[lang_trg])
+
     return data_df
 
+print("Parsing dataset...")
 
 if DATASET_NAME == "miguel":
-    # # Training
-    train_df = clean_file(file_src=f'{DATASET_PATH}/europarl.en', file_trg=f'{DATASET_PATH}/europarl.es', lang_src='English', lang_trg='Spanish')
-    train_df.to_csv(f"{DATASET_PATH}/clean/train.csv", index=False)
+
+    # Training
+    if not os.path.exists(f"{DATASET_PATH}/clean/train.csv"):
+        train_df = clean_file(file_src=f'{DATASET_PATH}/europarl.en', file_trg=f'{DATASET_PATH}/europarl.es', lang_src='English', lang_trg='Spanish')
+        train_df.to_csv(f"{DATASET_PATH}/clean/train.csv", index=False)
 
     # Validation
-    val_df = clean_file(file_src=f'{DATASET_PATH}/dev.en', file_trg=f'{DATASET_PATH}/dev.es', lang_src='English', lang_trg='Spanish')
-    val_df.to_csv(f"{DATASET_PATH}/clean/val.csv", index=False)
+    if not os.path.exists(f"{DATASET_PATH}/clean/val.csv"):
+        val_df = clean_file(file_src=f'{DATASET_PATH}/dev.en', file_trg=f'{DATASET_PATH}/dev.es', lang_src='English', lang_trg='Spanish')
+        val_df.to_csv(f"{DATASET_PATH}/clean/val.csv", index=False)
 
     # Test
-    test_df = clean_file(file_src=f'{DATASET_PATH}/test.en', file_trg=f'{DATASET_PATH}/test.es', lang_src='English', lang_trg='Spanish')
-    test_df.to_csv(f"{DATASET_PATH}/clean/test.csv", index=False)
+    if not os.path.exists(f"{DATASET_PATH}/clean/test.csv"):
+        test_df = clean_file(file_src=f'{DATASET_PATH}/test.en', file_trg=f'{DATASET_PATH}/test.es', lang_src='English', lang_trg='Spanish')
+        test_df.to_csv(f"{DATASET_PATH}/clean/test.csv", index=False)
 
     SRC = data.Field(tokenize="spacy", tokenizer_language="en", init_token=SOS_WORD, eos_token=EOS_WORD, lower=True, batch_first=True)
     TRG = data.Field(tokenize="spacy", tokenizer_language="es", init_token=SOS_WORD, eos_token=EOS_WORD, lower=True, batch_first=True)
