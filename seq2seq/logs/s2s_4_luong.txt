@@ -1,0 +1,56 @@
+ssh://scarrion@layers1.dsic.upv.es:22/home/scarrion/anaconda3/bin/python -u /home/scarrion/projects/MachineTranslation/seq2seq/main_rnn_packed.py
+/home/scarrion/anaconda3/lib/python3.7/site-packages/torchtext/data/field.py:150: UserWarning: Field class will be retired in the 0.8.0 release and moved to torchtext.legacy. Please see 0.7.0 release notes for further information.
+  warnings.warn('{} class will be retired in the 0.8.0 release and moved to torchtext.legacy. Please see 0.7.0 release notes for further information.'.format(self.__class__.__name__), UserWarning)
+/home/scarrion/anaconda3/lib/python3.7/site-packages/torchtext/data/example.py:78: UserWarning: Example class will be retired in the 0.8.0 release and moved to torchtext.legacy. Please see 0.7.0 release notes for further information.
+  warnings.warn('Example class will be retired in the 0.8.0 release and moved to torchtext.legacy. Please see 0.7.0 release notes for further information.', UserWarning)
+Number of training examples: 29000
+Number of validation examples: 1014
+Number of testing examples: 1000
+{'src': ['zwei', 'junge', 'weiße', 'männer', 'sind', 'im', 'freien', 'in', 'der', 'nähe', 'vieler', 'büsche', '.'], 'trg': ['two', 'young', ',', 'white', 'males', 'are', 'outside', 'near', 'many', 'bushes', '.']}
+Unique tokens in source (de) vocabulary: 7854
+Unique tokens in target (en) vocabulary: 5893
+/home/scarrion/anaconda3/lib/python3.7/site-packages/torchtext/data/iterator.py:48: UserWarning: BucketIterator class will be retired in the 0.8.0 release and moved to torchtext.legacy. Please see 0.7.0 release notes for further information.
+  warnings.warn('{} class will be retired in the 0.8.0 release and moved to torchtext.legacy. Please see 0.7.0 release notes for further information.'.format(self.__class__.__name__), UserWarning)
+Selected model: s2s_4_luong
+The model has 18,945,797 trainable parameters
+- Using GPU: True
+- No. devices: 2
+- Device name (0): TITAN Xp
+/home/scarrion/anaconda3/lib/python3.7/site-packages/torchtext/data/batch.py:23: UserWarning: Batch class will be retired in the 0.8.0 release and moved to torchtext.legacy. Please see 0.7.0 release notes for further information.
+  warnings.warn('{} class will be retired in the 0.8.0 release and moved to torchtext.legacy. Please see 0.7.0 release notes for further information.'.format(self.__class__.__name__), UserWarning)
+Epoch: 01 | Time: 0m 29s
+	Train Loss: 5.062 | Train PPL: 157.958
+	 Val. Loss: 4.825 |  Val. PPL: 124.645
+Epoch: 02 | Time: 0m 29s
+	Train Loss: 4.130 | Train PPL:  62.182
+	 Val. Loss: 4.231 |  Val. PPL:  68.789
+Epoch: 03 | Time: 0m 29s
+	Train Loss: 3.375 | Train PPL:  29.224
+	 Val. Loss: 3.711 |  Val. PPL:  40.897
+Epoch: 04 | Time: 0m 29s
+	Train Loss: 2.844 | Train PPL:  17.189
+	 Val. Loss: 3.412 |  Val. PPL:  30.338
+Epoch: 05 | Time: 0m 29s
+	Train Loss: 2.446 | Train PPL:  11.542
+	 Val. Loss: 3.330 |  Val. PPL:  27.929
+Epoch: 06 | Time: 0m 29s
+	Train Loss: 2.168 | Train PPL:   8.740
+	 Val. Loss: 3.314 |  Val. PPL:  27.488
+Epoch: 07 | Time: 0m 29s
+	Train Loss: 1.920 | Train PPL:   6.819
+	 Val. Loss: 3.225 |  Val. PPL:  25.165
+Epoch: 08 | Time: 0m 30s
+	Train Loss: 1.734 | Train PPL:   5.663
+	 Val. Loss: 3.312 |  Val. PPL:  27.452
+Epoch: 09 | Time: 0m 29s
+	Train Loss: 1.579 | Train PPL:   4.850
+	 Val. Loss: 3.317 |  Val. PPL:  27.574
+Epoch: 10 | Time: 0m 29s
+	Train Loss: 1.483 | Train PPL:   4.407
+	 Val. Loss: 3.392 |  Val. PPL:  29.721
+Model loaded
+| Test Loss: 3.244 | Test PPL:  25.632 |
+BLEU score = 31.77
+Done!
+
+Process finished with exit code 0
