@@ -43,44 +43,51 @@ EOS_WORD = '<eos>'
 def clean_file(file_src, file_trg, lang_src, lang_trg):
     file_src = open(file_src, encoding='utf-8').read().split('\n')
     file_trg = open(file_trg, encoding='utf-8').read().split('\n')
+    assert len(file_src) == len(file_trg)
+
+    # Preprocess lines
+    p = re.compile("^<seg id=\"\d+\">")
+    for i in tqdm(range(len(file_src)), total=len(file_src)):
+        file_src[i] = p.sub('', file_src[i])
+        file_trg[i] = p.sub('', file_trg[i])
 
     # Convert to pandas
     data_raw = {lang_src: [line for line in file_src], lang_trg: [line for line in file_trg]}
     data_df = pd.DataFrame(data_raw, columns=[lang_src, lang_trg])
-
-    # Add fields
-    data_df[f"{lang_src}_len"] = data_df[lang_src].str.count(' ')
-    data_df[f"{lang_trg}_len"] = data_df[lang_trg].str.count(' ')
-
-    # Preprocess file
-    # data_df = data_df.query(f"{lang_src}_len < {80} & {lang_trg}_len < {80}")
-    # data_df = data_df.query(f'{lang_src}_len < {lang_trg}_len * 1.5 & {lang_src}_len * 1.5 > {lang_trg}_len')
-
-    p = re.compile("^<seg id=\"\d+\">")
-    for index, row in tqdm(data_df.iterrows(), total=len(data_df)):
-        row[lang_src] = p.sub('', row[lang_src])
-        row[lang_trg] = p.sub('', row[lang_trg])
 
     return data_df
 
 print("Parsing dataset...")
 
 if DATASET_NAME == "miguel":
+    # Check clean directory
+    CLEAN_PATH = f"{DATASET_PATH}/clean"
+    if not os.path.exists(CLEAN_PATH):
+        print(f"Clean dataset directory does not exists: {CLEAN_PATH}")
 
     # Training
-    if not os.path.exists(f"{DATASET_PATH}/clean/train.csv"):
+    train_fname = f"{CLEAN_PATH}/train.csv"
+    if not os.path.exists(train_fname):
+        print(f"- Parsing training...")
         train_df = clean_file(file_src=f'{DATASET_PATH}/europarl.en', file_trg=f'{DATASET_PATH}/europarl.es', lang_src='English', lang_trg='Spanish')
-        train_df.to_csv(f"{DATASET_PATH}/clean/train.csv", index=False)
+        train_df.to_csv(train_fname, index=False)
+        print(f"- Train dataset saved! ({train_fname})")
 
     # Validation
-    if not os.path.exists(f"{DATASET_PATH}/clean/val.csv"):
+    val_fname = f"{CLEAN_PATH}/val.csv"
+    if not os.path.exists(val_fname):
+        print(f"- Parsing validation...")
         val_df = clean_file(file_src=f'{DATASET_PATH}/dev.en', file_trg=f'{DATASET_PATH}/dev.es', lang_src='English', lang_trg='Spanish')
-        val_df.to_csv(f"{DATASET_PATH}/clean/val.csv", index=False)
+        val_df.to_csv(val_fname, index=False)
+        print(f"- Validation dataset saved! ({val_fname})")
 
     # Test
-    if not os.path.exists(f"{DATASET_PATH}/clean/test.csv"):
+    test_fname = f"{CLEAN_PATH}/test.csv"
+    if not os.path.exists(test_fname):
+        print(f"- Parsing testing...")
         test_df = clean_file(file_src=f'{DATASET_PATH}/test.en', file_trg=f'{DATASET_PATH}/test.es', lang_src='English', lang_trg='Spanish')
-        test_df.to_csv(f"{DATASET_PATH}/clean/test.csv", index=False)
+        test_df.to_csv(test_fname, index=False)
+        print(f"- Test dataset saved! ({test_fname})")
 
     SRC = data.Field(tokenize="spacy", tokenizer_language="en", init_token=SOS_WORD, eos_token=EOS_WORD, lower=True, batch_first=True)
     TRG = data.Field(tokenize="spacy", tokenizer_language="es", init_token=SOS_WORD, eos_token=EOS_WORD, lower=True, batch_first=True)
@@ -89,8 +96,6 @@ if DATASET_NAME == "miguel":
     train_data, val_data, test_data = data.TabularDataset.splits(path=f'{DATASET_PATH}/clean/',
                                                                  train='train.csv', validation='val.csv', test='test.csv',
                                                                  format='csv', fields=(SRC, TRG))
-
-    asdas = 33
 
 if DATASET_NAME == "multi30k":
     SRC = data.Field(tokenize="spacy", tokenizer_language="de", init_token=SOS_WORD, eos_token=EOS_WORD, lower=True, batch_first=True)
@@ -145,7 +150,7 @@ criterion = nn.CrossEntropyLoss(ignore_index=TRG_PAD_IDX)
 print(utils.gpu_info())
 
 # Train and validate model
-N_EPOCHS = 10
+N_EPOCHS = 1
 CLIP = 1.0
 best_valid_loss = float('inf')
 checkpoint_path = f'checkpoints/checkpoint_{MODEL_NAME}.pt'
