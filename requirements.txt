@@ -16,4 +16,5 @@ scikit-image
 jupyter
 cython
 tqdm
+dill
 #albumentations

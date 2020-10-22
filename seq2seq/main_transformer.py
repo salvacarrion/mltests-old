@@ -26,6 +26,7 @@ TRAIN = True
 EVALUATE = True
 BLUE = True
 LEARNING_RATE = 0.0005
+MIN_FREQ = 2
 
 # Deterministic environment
 SEED = 1234
@@ -58,7 +59,9 @@ def clean_file(file_src, file_trg, lang_src, lang_trg):
 
     return data_df
 
-print("Parsing dataset...")
+
+SRC = data.Field(tokenize='spacy', tokenizer_language="en", init_token=SOS_WORD, eos_token=EOS_WORD, lower=True, batch_first=True)
+TRG = data.Field(tokenize='spacy', tokenizer_language="es", init_token=SOS_WORD, eos_token=EOS_WORD, lower=True, batch_first=True)
 
 if DATASET_NAME == "miguel":
     # Check clean directory
@@ -90,15 +93,34 @@ if DATASET_NAME == "miguel":
         test_df.to_csv(test_fname, index=False)
         print(f"- Test dataset saved! ({test_fname})")
 
-    SRC = data.Field(tokenize='spacy', tokenizer_language="en", init_token=SOS_WORD, eos_token=EOS_WORD, lower=True, batch_first=True)
-    TRG = data.Field(tokenize='spacy', tokenizer_language="es", init_token=SOS_WORD, eos_token=EOS_WORD, lower=True, batch_first=True)
-
 
     # Tokenize dataset
-    data_fields = [('English', SRC), ('Spanish', TRG)]
-    train_data, val_data, test_data = data.TabularDataset.splits(path=f'{DATASET_PATH}/clean/',
-                                                                 train='train.csv', validation='val.csv', test='test.csv',
-                                                                 format='csv', fields=data_fields)
+    clean_ds = f"{DATASET_PATH}/clean_ds"
+    if not os.path.exists(clean_ds):
+        print("Reading and preprocessing Tabular dataset...")
+        data_fields = [('src', SRC), ('trg', TRG)]
+        train_data, val_data, test_data = data.TabularDataset.splits(path=f'{DATASET_PATH}/clean/',
+                                                                     train='train.csv', validation='val.csv', test='test.csv',
+                                                                     format='csv', fields=data_fields, skip_header=True)
+        # Save preprocessed
+        print("Saving dataset...")
+        # helpers.save_dataset(train_data, f"{DATASET_PATH}/clean_ds", "train_data")
+        helpers.save_dataset(train_data, f"{DATASET_PATH}/clean_ds", "train_data")
+        helpers.save_dataset(val_data, f"{DATASET_PATH}/clean_ds", "val_data")
+        helpers.save_dataset(test_data, f"{DATASET_PATH}/clean_ds", "test_data")
+        print("Datasets saved!")
+
+    else:
+        print("Loading datasets...")
+
+        train_data = helpers.load_dataset(f"{DATASET_PATH}/clean_ds", "train_data")
+        val_data = helpers.load_dataset(f"{DATASET_PATH}/clean_ds", "val_data")
+        test_data = helpers.load_dataset(f"{DATASET_PATH}/clean_ds", "test_data")
+        print("Datasets loaded!")
+
+        # Create vocabulary
+        SRC = train_data.fields['src']
+        TRG = train_data.fields['trg']
 
 elif DATASET_NAME == "multi30k":
     SRC = data.Field(tokenize="spacy", tokenizer_language="de", init_token=SOS_WORD, eos_token=EOS_WORD, lower=True, batch_first=True)
@@ -106,6 +128,8 @@ elif DATASET_NAME == "multi30k":
 
     # Download and tokenize dataset
     train_data, val_data, test_data = datasets.Multi30k.splits(exts=('.de', '.en'), fields=(SRC, TRG))
+
+
 else:
     raise ValueError("Unknown dataset")
 
@@ -115,8 +139,6 @@ print(f"Number of testing examples: {len(test_data.examples)}")
 
 print(vars(train_data.examples[0]))
 
-# Create vocabulary
-MIN_FREQ = 2
 SRC.build_vocab(train_data.src, min_freq=MIN_FREQ)
 TRG.build_vocab(train_data.trg, min_freq=MIN_FREQ)
 
@@ -124,7 +146,6 @@ print(f"Unique tokens in source (en) vocabulary: {len(SRC.vocab)}")
 print(f"Unique tokens in target (es) vocabulary: {len(TRG.vocab)}")
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
 
 BATCH_SIZE = 128
 train_iter, val_iter, test_iter = data.BucketIterator.splits(
@@ -153,7 +174,7 @@ criterion = nn.CrossEntropyLoss(ignore_index=TRG_PAD_IDX)
 print(utils.gpu_info())
 
 # Train and validate model
-N_EPOCHS = 1024
+N_EPOCHS = 5
 CLIP = 1.0
 best_valid_loss = float('inf')
 checkpoint_path = f'checkpoints/checkpoint_{MODEL_NAME}.pt'

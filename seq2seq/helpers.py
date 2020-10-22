@@ -9,6 +9,11 @@ from torchtext import data, datasets
 from torchtext.data.metrics import bleu_score
 import spacy
 
+import dill
+from pathlib import Path
+
+import torch
+from torchtext.data import Dataset
 
 def train(model, train_iter, optimizer, criterion, clip, packed_pad=False, teacher_forcing_ratio=0.5):
     model.train()
@@ -151,3 +156,23 @@ def calculate_bleu(model, data_iter, max_trg_len=50, packed_pad=False):
         trgs.append([trg_tokens])
 
     return bleu_score(trg_pred, trgs)
+
+
+def save_dataset(dataset, folder, fname):
+    if not isinstance(folder, Path):
+        path = Path(folder)
+    else:
+        raise TypeError("folder must be a str")
+    path.mkdir(parents=True, exist_ok=True)
+    torch.save(dataset.examples, path/f"{fname}_examples.pkl", pickle_module=dill)
+    torch.save(dataset.fields, path/f"{fname}_fields.pkl", pickle_module=dill)
+
+
+def load_dataset(folder, fname):
+    if not isinstance(folder, Path):
+        path = Path(folder)
+    else:
+        raise TypeError("folder must be a str")
+    examples = torch.load(path/f"{fname}_examples.pkl", pickle_module=dill)
+    fields = torch.load(path/f"{fname}_fields.pkl", pickle_module=dill)
+    return Dataset(examples, fields)
