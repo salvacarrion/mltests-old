@@ -13,7 +13,7 @@ pandas
 scipy
 scikit-learn
 scikit-image
-albumentations
 jupyter
 cython
 tqdm
+#albumentations

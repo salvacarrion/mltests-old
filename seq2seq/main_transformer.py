@@ -16,6 +16,7 @@ import time
 from seq2seq import utils, helpers
 import re
 import os
+import pickle
 
 # Build model and initialize
 MODEL_NAME = "s2s_6_transformer"
@@ -89,15 +90,17 @@ if DATASET_NAME == "miguel":
         test_df.to_csv(test_fname, index=False)
         print(f"- Test dataset saved! ({test_fname})")
 
-    SRC = data.Field(tokenize="spacy", tokenizer_language="en", init_token=SOS_WORD, eos_token=EOS_WORD, lower=True, batch_first=True)
-    TRG = data.Field(tokenize="spacy", tokenizer_language="es", init_token=SOS_WORD, eos_token=EOS_WORD, lower=True, batch_first=True)
+    SRC = data.Field(tokenize='spacy', tokenizer_language="en", init_token=SOS_WORD, eos_token=EOS_WORD, lower=True, batch_first=True)
+    TRG = data.Field(tokenize='spacy', tokenizer_language="es", init_token=SOS_WORD, eos_token=EOS_WORD, lower=True, batch_first=True)
+
 
     # Tokenize dataset
+    data_fields = [('English', SRC), ('Spanish', TRG)]
     train_data, val_data, test_data = data.TabularDataset.splits(path=f'{DATASET_PATH}/clean/',
                                                                  train='train.csv', validation='val.csv', test='test.csv',
-                                                                 format='csv', fields=(SRC, TRG))
+                                                                 format='csv', fields=data_fields)
 
-if DATASET_NAME == "multi30k":
+elif DATASET_NAME == "multi30k":
     SRC = data.Field(tokenize="spacy", tokenizer_language="de", init_token=SOS_WORD, eos_token=EOS_WORD, lower=True, batch_first=True)
     TRG = data.Field(tokenize="spacy", tokenizer_language="en", init_token=SOS_WORD, eos_token=EOS_WORD, lower=True, batch_first=True)
 
@@ -117,8 +120,8 @@ MIN_FREQ = 2
 SRC.build_vocab(train_data.src, min_freq=MIN_FREQ)
 TRG.build_vocab(train_data.trg, min_freq=MIN_FREQ)
 
-print(f"Unique tokens in source (de) vocabulary: {len(SRC.vocab)}")
-print(f"Unique tokens in target (en) vocabulary: {len(TRG.vocab)}")
+print(f"Unique tokens in source (en) vocabulary: {len(SRC.vocab)}")
+print(f"Unique tokens in target (es) vocabulary: {len(TRG.vocab)}")
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -150,7 +153,7 @@ criterion = nn.CrossEntropyLoss(ignore_index=TRG_PAD_IDX)
 print(utils.gpu_info())
 
 # Train and validate model
-N_EPOCHS = 1
+N_EPOCHS = 1024
 CLIP = 1.0
 best_valid_loss = float('inf')
 checkpoint_path = f'checkpoints/checkpoint_{MODEL_NAME}.pt'
