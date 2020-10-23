@@ -1,3 +1,6 @@
+import sys
+sys.path.append("..")
+
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -22,12 +25,13 @@ import pickle
 MODEL_NAME = "s2s_6_transformer"
 DATASET_NAME = "miguel"  # multi30k, miguel
 DATASET_PATH = f".data/{DATASET_NAME}"
-TRAIN = False
-EVALUATE = False
+TRAIN = True
+EVALUATE = True
 BLUE = True
 LEARNING_RATE = 0.0005
-MIN_FREQ = 5
-MAX_SIZE = 10000
+MIN_FREQ = 3
+MAX_SIZE = 15000
+N_EPOCHS = 2048
 
 # Deterministic environment
 SEED = 1234
@@ -115,7 +119,7 @@ if DATASET_NAME == "miguel":
     else:
         print("Loading datasets...")
 
-        train_data = helpers.load_dataset(f"{DATASET_PATH}/clean_ds", "test_data")
+        train_data = helpers.load_dataset(f"{DATASET_PATH}/clean_ds", "train_data")
         val_data = helpers.load_dataset(f"{DATASET_PATH}/clean_ds", "val_data")
         test_data = helpers.load_dataset(f"{DATASET_PATH}/clean_ds", "test_data")
         print("Datasets loaded!")
@@ -206,7 +210,6 @@ criterion = nn.CrossEntropyLoss(ignore_index=TRG_PAD_IDX)
 print(utils.gpu_info())
 
 # Train and validate model
-N_EPOCHS = 5
 CLIP = 1.0
 best_valid_loss = float('inf')
 checkpoint_path = f'checkpoints/checkpoint_{MODEL_NAME}.pt'
