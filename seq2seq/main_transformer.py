@@ -22,11 +22,12 @@ import pickle
 MODEL_NAME = "s2s_6_transformer"
 DATASET_NAME = "miguel"  # multi30k, miguel
 DATASET_PATH = f".data/{DATASET_NAME}"
-TRAIN = True
-EVALUATE = True
+TRAIN = False
+EVALUATE = False
 BLUE = True
 LEARNING_RATE = 0.0005
-MIN_FREQ = 2
+MIN_FREQ = 5
+MAX_SIZE = 10000
 
 # Deterministic environment
 SEED = 1234
@@ -50,6 +51,7 @@ def clean_file(file_src, file_trg, lang_src, lang_trg):
     # Preprocess lines
     p = re.compile("^<seg id=\"\d+\">")
     for i in tqdm(range(len(file_src)), total=len(file_src)):
+        # Remove html
         file_src[i] = p.sub('', file_src[i])
         file_trg[i] = p.sub('', file_trg[i])
 
@@ -113,14 +115,18 @@ if DATASET_NAME == "miguel":
     else:
         print("Loading datasets...")
 
-        train_data = helpers.load_dataset(f"{DATASET_PATH}/clean_ds", "train_data")
+        train_data = helpers.load_dataset(f"{DATASET_PATH}/clean_ds", "test_data")
         val_data = helpers.load_dataset(f"{DATASET_PATH}/clean_ds", "val_data")
         test_data = helpers.load_dataset(f"{DATASET_PATH}/clean_ds", "test_data")
         print("Datasets loaded!")
 
-        # Create vocabulary
+        # Fix references
         SRC = train_data.fields['src']
         TRG = train_data.fields['trg']
+        val_data.fields['src'] = SRC
+        val_data.fields['trg'] = TRG
+        test_data.fields['src'] = SRC
+        test_data.fields['trg'] = TRG
 
 elif DATASET_NAME == "multi30k":
     SRC = data.Field(tokenize="spacy", tokenizer_language="de", init_token=SOS_WORD, eos_token=EOS_WORD, lower=True, batch_first=True)
@@ -139,8 +145,33 @@ print(f"Number of testing examples: {len(test_data.examples)}")
 
 print(vars(train_data.examples[0]))
 
-SRC.build_vocab(train_data.src, min_freq=MIN_FREQ)
-TRG.build_vocab(train_data.trg, min_freq=MIN_FREQ)
+# Get sentence lengths
+sent_lenghts = np.array([(len(sent.src), len(sent.trg)) for sent in train_data.examples])
+min_lengths = np.min(sent_lenghts, axis=0)
+max_lengths = np.max(sent_lenghts, axis=0)
+
+print(f"Length range for SRC: {min_lengths[0]}-{max_lengths[0]}")
+print(f"Length range for TRG: {min_lengths[1]}-{max_lengths[1]}")
+
+# Get sentence lengths
+sent_lenghts = np.array([(len(sent.src), len(sent.trg)) for sent in val_data.examples])
+min_lengths = np.min(sent_lenghts, axis=0)
+max_lengths = np.max(sent_lenghts, axis=0)
+
+print(f"Length range for SRC (val): {min_lengths[0]}-{max_lengths[0]}")
+print(f"Length range for TRG (val): {min_lengths[1]}-{max_lengths[1]}")
+
+# Get sentence lengths
+sent_lenghts = np.array([(len(sent.src), len(sent.trg)) for sent in test_data.examples])
+min_lengths = np.min(sent_lenghts, axis=0)
+max_lengths = np.max(sent_lenghts, axis=0)
+
+print(f"Length range for SRC (test): {min_lengths[0]}-{max_lengths[0]}")
+print(f"Length range for TRG (test): {min_lengths[1]}-{max_lengths[1]}")
+
+
+SRC.build_vocab(train_data.src, max_size=MAX_SIZE)
+TRG.build_vocab(train_data.trg, max_size=MAX_SIZE)
 
 print(f"Unique tokens in source (en) vocabulary: {len(SRC.vocab)}")
 print(f"Unique tokens in target (es) vocabulary: {len(TRG.vocab)}")
@@ -150,13 +181,14 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 BATCH_SIZE = 128
 train_iter, val_iter, test_iter = data.BucketIterator.splits(
     (train_data, val_data, test_data), batch_size=BATCH_SIZE, device=device,
+    sort=False
 )
 
 
 if MODEL_NAME == "s2s_6_transformer":
     from seq2seq.models import s2s_6_transfomer as s2s_model
 
-    model = s2s_model.make_model(src_field=SRC, trg_field=TRG)
+    model = s2s_model.make_model(src_field=SRC, trg_field=TRG, max_src_len=845, max_trg_len=760)
     model.apply(s2s_model.init_weights)
     optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
 
@@ -197,6 +229,7 @@ if TRAIN:
         if valid_loss < best_valid_loss:
             best_valid_loss = valid_loss
             torch.save(model.state_dict(), checkpoint_path)
+            print("Model saved!")
 
         print(f'Epoch: {epoch + 1:02} | Time: {epoch_mins}m {epoch_secs}s')
         print(f'\tTrain Loss: {train_loss:.3f} | Train PPL: {math.exp(train_loss):7.3f}')
@@ -214,7 +247,7 @@ if EVALUATE or BLUE:
         print(f'| Test Loss: {test_loss:.3f} | Test PPL: {math.exp(test_loss):7.3f} |')
 
     if BLUE:
-        bleu_score = helpers.calculate_bleu(model, test_iter, packed_pad=packed_pad)
+        bleu_score = helpers.calculate_bleu(model, test_iter, max_trg_len=760, packed_pad=packed_pad)
         print(f'BLEU score = {bleu_score * 100:.2f}')
 
 

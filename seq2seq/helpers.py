@@ -8,6 +8,7 @@ import matplotlib.ticker as ticker
 from torchtext import data, datasets
 from torchtext.data.metrics import bleu_score
 import spacy
+from tqdm import tqdm
 
 import dill
 from pathlib import Path
@@ -125,14 +126,14 @@ def display_attention(sentence, translation, attention):
     plt.close()
 
 
-def calculate_bleu(model, data_iter, max_trg_len=50, packed_pad=False):
+def calculate_bleu(model, data_iter, max_trg_len=150, packed_pad=False):
     trgs = []
     trg_pred = []
 
     model.eval()
     data_iter.batch_size = 1
 
-    for i, batch in enumerate(data_iter):
+    for batch in tqdm(data_iter, total=len(data_iter)):
         # Get data
         (src, src_len) = batch.src if packed_pad else (batch.src, None)
         trg = batch.trg

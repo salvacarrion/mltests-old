@@ -8,7 +8,8 @@ import torch.nn.functional as F
 
 
 def make_model(src_field, trg_field, hid_dim=256, enc_layers=3, dec_layers=3, enc_heads=8, dec_heads=8,
-               enc_pf_dim=512, dec_pf_dim=512, enc_dropout=0.1, dec_dropout=0.1, device=None):
+               enc_pf_dim=512, dec_pf_dim=512, enc_dropout=0.1, dec_dropout=0.1, device=None,
+               max_src_len=100, max_trg_len=100):
     # Set device
     if not device:
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -22,8 +23,8 @@ def make_model(src_field, trg_field, hid_dim=256, enc_layers=3, dec_layers=3, en
     assert hid_dim % dec_heads == 0
 
     # Build model
-    enc = Encoder(input_dim, hid_dim, enc_layers, enc_heads, enc_pf_dim, enc_dropout, device)
-    dec = Decoder(output_dim, hid_dim, dec_layers, dec_heads, dec_pf_dim, dec_dropout, device)
+    enc = Encoder(input_dim, hid_dim, enc_layers, enc_heads, enc_pf_dim, enc_dropout, max_src_len, device)
+    dec = Decoder(output_dim, hid_dim, dec_layers, dec_heads, dec_pf_dim, dec_dropout, max_trg_len, device)
     model = Seq2Seq(enc, dec, src_field, trg_field, device).to(device)
     return model
 
@@ -35,9 +36,10 @@ def init_weights(m):
 
 class Encoder(nn.Module):
 
-    def __init__(self, input_dim, hid_dim, n_layers, n_heads, pf_dim, dropout, device, max_length=100):
+    def __init__(self, input_dim, hid_dim, n_layers, n_heads, pf_dim, dropout, max_length, device):
         super().__init__()
         self.device = device
+        self.max_length = max_length
 
         self.tok_embedding = nn.Embedding(input_dim, hid_dim)  # Vocab => emb
         self.pos_embedding = nn.Embedding(max_length, hid_dim)  # Pos => emb_pos
@@ -54,6 +56,7 @@ class Encoder(nn.Module):
     def forward(self, src, src_mask):
         batch_size = src.shape[0]
         src_len = src.shape[1]
+        assert src_len <= self.max_length
 
         # Initial positions: 0,1,2,... for each sample
         pos = torch.arange(0, src_len).unsqueeze(0).repeat(batch_size, 1).to(self.device)  # (B, src_len)
@@ -163,10 +166,11 @@ class PositionwiseFeedforwardLayer(nn.Module):
 
 
 class Decoder(nn.Module):
-    def __init__(self, output_dim, hid_dim, n_layers, n_heads, pf_dim, dropout, device, max_length=100):
+    def __init__(self, output_dim, hid_dim, n_layers, n_heads, pf_dim, dropout, max_length, device):
         super().__init__()
 
         self.device = device
+        self.max_length = max_length
 
         self.tok_embedding = nn.Embedding(output_dim, hid_dim)
         self.pos_embedding = nn.Embedding(max_length, hid_dim)
@@ -183,6 +187,7 @@ class Decoder(nn.Module):
     def forward(self, trg, enc_src, trg_mask, src_mask):
         batch_size = trg.shape[0]
         trg_len = trg.shape[1]
+        assert trg_len <= self.max_length
 
         # Initial positions: 0,1,2,... for each sample
         pos = torch.arange(0, trg_len).unsqueeze(0).repeat(batch_size, 1).to(self.device)
@@ -267,6 +272,12 @@ class Seq2Seq(nn.Module):
         return trg_mask
 
     def forward(self, src, trg):
+        src_max_idx = src.max()
+        trg_max_idx = src.max()
+
+        assert src_max_idx < len(self.src_field.vocab)
+        assert trg_max_idx < len(self.trg_field.vocab)
+
         # Build masks
         src_mask = self.make_src_mask(src)
         trg_mask = self.make_trg_mask(trg)
