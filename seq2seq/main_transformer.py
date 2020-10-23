@@ -68,7 +68,6 @@ def clean_file(file_src, file_trg, lang_src, lang_trg):
 
     return data_df
 
-
 SRC = data.Field(tokenize='spacy', tokenizer_language="en", init_token=SOS_WORD, eos_token=EOS_WORD, lower=True, batch_first=True)
 TRG = data.Field(tokenize='spacy', tokenizer_language="es", init_token=SOS_WORD, eos_token=EOS_WORD, lower=True, batch_first=True)
 
