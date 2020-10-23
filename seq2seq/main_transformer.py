@@ -29,9 +29,12 @@ TRAIN = True
 EVALUATE = True
 BLUE = True
 LEARNING_RATE = 0.0005
-MIN_FREQ = 3
-MAX_SIZE = 15000
+MIN_FREQ = 5
+MAX_SIZE = 8000 - 4  # 4 reserved words <sos>, <eos>, <pad>, <unk>
 N_EPOCHS = 2048
+MAX_SRC_LENGTH = 845
+MAX_TRG_LENGTH = 760
+BATCH_SIZE = 64
 
 # Deterministic environment
 SEED = 1234
@@ -182,7 +185,6 @@ print(f"Unique tokens in target (es) vocabulary: {len(TRG.vocab)}")
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-BATCH_SIZE = 128
 train_iter, val_iter, test_iter = data.BucketIterator.splits(
     (train_data, val_data, test_data), batch_size=BATCH_SIZE, device=device,
     sort=False
@@ -192,7 +194,7 @@ train_iter, val_iter, test_iter = data.BucketIterator.splits(
 if MODEL_NAME == "s2s_6_transformer":
     from seq2seq.models import s2s_6_transfomer as s2s_model
 
-    model = s2s_model.make_model(src_field=SRC, trg_field=TRG, max_src_len=845, max_trg_len=760)
+    model = s2s_model.make_model(src_field=SRC, trg_field=TRG, max_src_len=MAX_SRC_LENGTH, max_trg_len=MAX_TRG_LENGTH)
     model.apply(s2s_model.init_weights)
     optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
 
@@ -250,7 +252,7 @@ if EVALUATE or BLUE:
         print(f'| Test Loss: {test_loss:.3f} | Test PPL: {math.exp(test_loss):7.3f} |')
 
     if BLUE:
-        bleu_score = helpers.calculate_bleu(model, test_iter, max_trg_len=760, packed_pad=packed_pad)
+        bleu_score = helpers.calculate_bleu(model, test_iter, max_trg_len=MAX_TRG_LENGTH, packed_pad=packed_pad)
         print(f'BLEU score = {bleu_score * 100:.2f}')
 
 
