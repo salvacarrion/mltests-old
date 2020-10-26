@@ -12,6 +12,8 @@ from tqdm import tqdm
 
 import dill
 from pathlib import Path
+import time
+import json
 
 import torch
 from torchtext.data import Dataset
@@ -159,21 +161,40 @@ def calculate_bleu(model, data_iter, max_trg_len=150, packed_pad=False):
     return bleu_score(trg_pred, trgs)
 
 
-def save_dataset(dataset, folder, fname):
-    if not isinstance(folder, Path):
-        path = Path(folder)
-    else:
-        raise TypeError("folder must be a str")
-    path.mkdir(parents=True, exist_ok=True)
-    torch.save(dataset.examples, path/f"{fname}_examples.pkl", pickle_module=dill)
-    torch.save(dataset.fields, path/f"{fname}_fields.pkl", pickle_module=dill)
+def save_dataset_examples(dataset, savepath):
+    start = time.time()
+
+    total = len(dataset.examples)
+    with open(savepath, 'w') as f:
+        # Save num. elements
+        f.write(json.dumps(total))
+        f.write("\n")
+
+        # Save elements
+        for pair in tqdm(dataset.examples, total=total):
+            data = [pair.src, pair.trg]
+            f.write(json.dumps(data))
+            f.write("\n")
+
+    end = time.time()
+    print(f"Save dataset examples: [Total time= {end - start}; Num. examples={total}]")
 
 
-def load_dataset(folder, fname):
-    if not isinstance(folder, Path):
-        path = Path(folder)
-    else:
-        raise TypeError("folder must be a str")
-    examples = torch.load(path/f"{fname}_examples.pkl", pickle_module=dill)
-    fields = torch.load(path/f"{fname}_fields.pkl", pickle_module=dill)
-    return Dataset(examples, fields)
+def load_dataset_examples(filename):
+    start = time.time()
+
+    examples = []
+    with open(filename, 'rb') as f:
+        # Read num. elements
+        line = f.readline()
+        total = json.loads(line)
+
+        # Save elements
+        for i in tqdm(range(total), total=total):
+            line = f.readline()
+            example = json.loads(line)
+            examples.append(example)
+
+    end = time.time()
+    print(f"Load dataset examples: [Total time= {end - start}; Num. examples={total}]")
+    return examples
