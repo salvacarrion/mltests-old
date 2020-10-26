@@ -32,6 +32,7 @@ TRAIN = True
 EVALUATE = True
 BLUE = True
 TENSORBOARD = True
+ENABLE_PARALLELIZATION = True
 LEARNING_RATE = 0.0005
 MIN_FREQ = 5
 MAX_SIZE = 8000 - 4  # 4 reserved words <sos>, <eos>, <pad>, <unk>
@@ -40,7 +41,7 @@ MAX_SRC_LENGTH = 100 + 2  # Doesn't include <sos>, <eos>
 MAX_TRG_LENGTH = 100 + 2  # Doesn't include <sos>, <eos>
 BATCH_SIZE = 64
 CHECKPOINT_PATH = f'checkpoints/checkpoint_{MODEL_NAME}.pt'
-TR_RATIO = 1.0
+TR_RATIO = 0.1
 DV_RATIO = 1.0
 TS_RATIO = 1.0
 
@@ -94,8 +95,8 @@ train_iter, dev_iter, test_iter = data.BucketIterator.splits(
 # Select model
 if MODEL_NAME == "simple_transformer":
     from seq2seq.models import s2s_6_transfomer as s2s_model
-
-    model = s2s_model.make_model(src_field=SRC, trg_field=TRG, max_src_len=MAX_SRC_LENGTH, max_trg_len=MAX_TRG_LENGTH)
+    model = s2s_model.make_model(src_field=SRC, trg_field=TRG,
+                                 max_src_len=MAX_SRC_LENGTH, max_trg_len=MAX_TRG_LENGTH, use_parallelization=ENABLE_PARALLELIZATION)
     model.apply(s2s_model.init_weights)
     optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
 
@@ -116,9 +117,9 @@ print(utils.gpu_info())
 train_writer = SummaryWriter(f"{EXPERIMENT_NAME}/train")
 val_writer = SummaryWriter(f"{EXPERIMENT_NAME}/val")
 
-# Get graph
-dummy_batch = next(iter(train_iter))
-train_writer.add_graph(model, [dummy_batch.src, dummy_batch.trg[:, :-1]])
+# TB: Get graph
+# dummy_batch = next(iter(train_iter))
+# train_writer.add_graph(model, [dummy_batch.src, dummy_batch.trg[:, :-1]])
 
 
 # Train and validate model

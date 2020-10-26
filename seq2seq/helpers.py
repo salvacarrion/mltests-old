@@ -192,7 +192,7 @@ def load_dataset(filename, fields, ratio=1.0):
         total = json.loads(line)
 
         # Load elements
-        limit = total*ratio
+        limit = int(total*ratio)
         for i in tqdm(range(limit), total=limit):
             line = f.readline()
             example = json.loads(line)

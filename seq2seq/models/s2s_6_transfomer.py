@@ -9,7 +9,7 @@ import torch.nn.functional as F
 
 def make_model(src_field, trg_field, hid_dim=256, enc_layers=3, dec_layers=3, enc_heads=8, dec_heads=8,
                enc_pf_dim=512, dec_pf_dim=512, enc_dropout=0.1, dec_dropout=0.1, device=None,
-               max_src_len=100, max_trg_len=100):
+               max_src_len=100, max_trg_len=100, use_parallelization=False):
     # Set device
     if not device:
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -25,7 +25,16 @@ def make_model(src_field, trg_field, hid_dim=256, enc_layers=3, dec_layers=3, en
     # Build model
     enc = Encoder(input_dim, hid_dim, enc_layers, enc_heads, enc_pf_dim, enc_dropout, max_src_len, device)
     dec = Decoder(output_dim, hid_dim, dec_layers, dec_heads, dec_pf_dim, dec_dropout, max_trg_len, device)
-    model = Seq2Seq(enc, dec, src_field, trg_field, device).to(device)
+    model = Seq2Seq(enc, dec, src_field, trg_field, device)
+
+    # Parallelize model
+    if use_parallelization and torch.cuda.device_count() > 1:
+        model = nn.DataParallel(model)
+        print(f"Parallelizing model: {torch.cuda.device_count()} devices")
+
+    # Send to device
+    model.to(device)
+
     return model
 
 
