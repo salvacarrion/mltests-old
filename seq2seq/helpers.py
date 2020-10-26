@@ -182,7 +182,7 @@ def save_dataset_examples(dataset, savepath):
     print(f"Save dataset examples: [Total time= {end - start}; Num. examples={total}]")
 
 
-def load_dataset(filename, fields):
+def load_dataset(filename, fields, ratio=1.0):
     start = time.time()
 
     examples = []
@@ -192,7 +192,8 @@ def load_dataset(filename, fields):
         total = json.loads(line)
 
         # Load elements
-        for i in tqdm(range(total), total=total):
+        limit = total*ratio
+        for i in tqdm(range(limit), total=limit):
             line = f.readline()
             example = json.loads(line)
             example = data.Example().fromlist(example, fields)  # Create Example obj.

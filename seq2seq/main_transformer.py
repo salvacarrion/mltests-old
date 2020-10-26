@@ -40,6 +40,9 @@ MAX_SRC_LENGTH = 100 + 2  # Doesn't include <sos>, <eos>
 MAX_TRG_LENGTH = 100 + 2  # Doesn't include <sos>, <eos>
 BATCH_SIZE = 64
 CHECKPOINT_PATH = f'checkpoints/checkpoint_{MODEL_NAME}.pt'
+TR_RATIO = 1.0
+DV_RATIO = 1.0
+TS_RATIO = 1.0
 
 # Deterministic environment
 SEED = 1234
@@ -60,9 +63,9 @@ TRG = data.Field(tokenize='spacy', tokenizer_language="es", init_token=SOS_WORD,
 fields = [('src', SRC), ('trg', TRG)]
 
 # Load examples
-train_data = helpers.load_dataset(f"{DATASET_PATH}/tokenized/dev.json", fields)
-dev_data = helpers.load_dataset(f"{DATASET_PATH}/tokenized/dev.json", fields)
-test_data = helpers.load_dataset(f"{DATASET_PATH}/tokenized/test.json", fields)
+train_data = helpers.load_dataset(f"{DATASET_PATH}/tokenized/train.json", fields, TR_RATIO)
+dev_data = helpers.load_dataset(f"{DATASET_PATH}/tokenized/dev.json", fields, DV_RATIO)
+test_data = helpers.load_dataset(f"{DATASET_PATH}/tokenized/test.json", fields, TS_RATIO)
 
 print(f"Number of training examples: {len(train_data.examples)}")
 print(f"Number of validation examples: {len(dev_data.examples)}")
