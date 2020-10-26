@@ -110,8 +110,13 @@ criterion = nn.CrossEntropyLoss(ignore_index=TRG_PAD_IDX)
 print(utils.gpu_info())
 
 # Tensorboard (it needs some epochs to start working ~10-20)
-train_writer = SummaryWriter(f"{EXPERIMENT_NAME}_train")
-val_writer = SummaryWriter(f"{EXPERIMENT_NAME}_val")
+train_writer = SummaryWriter(f"{EXPERIMENT_NAME}/train")
+val_writer = SummaryWriter(f"{EXPERIMENT_NAME}/val")
+
+# Get graph
+dummy_batch = next(iter(train_iter))
+train_writer.add_graph(model, [dummy_batch.src, dummy_batch.trg[:, :-1]])
+
 
 # Train and validate model
 CLIP = 1.0
@@ -149,10 +154,10 @@ if TRAIN:
 
         # Tensorboard
         if TENSORBOARD:
-            train_writer.add_scalar('Loss/train', train_loss, n_iter)
-            val_writer.add_scalar('Loss/val', valid_loss, n_iter)
-            train_writer.add_scalar('PPL/train', train_ppl, n_iter)
-            val_writer.add_scalar('PPL/val', test_ppl, n_iter)
+            train_writer.add_scalar('Loss', train_loss, n_iter)
+            val_writer.add_scalar('Loss', valid_loss, n_iter)
+            train_writer.add_scalar('PPL', train_ppl, n_iter)
+            val_writer.add_scalar('PPL', test_ppl, n_iter)
 
 # Testing
 if EVALUATE or BLUE:
@@ -170,3 +175,7 @@ if EVALUATE or BLUE:
         print(f'BLEU score = {bleu_score * 100:.2f}')
 
 print("Done!")
+
+# Close Tensorboard stuff
+train_writer.close()
+val_writer.close()
