@@ -55,21 +55,16 @@ TRG = data.Field(tokenize='spacy', tokenizer_language="es", init_token=SOS_WORD,
 fields = [('src', SRC), ('trg', TRG)]
 
 # Load examples
-train_data = helpers.load_dataset_examples(f"{DATASET_PATH}/tokenized/train.json")
-dev_data = helpers.load_dataset_examples(f"{DATASET_PATH}/tokenized/dev.json")
-test_data = helpers.load_dataset_examples(f"{DATASET_PATH}/tokenized/test.json")
-
-# (Re)Build dataset (fast)
-train_data = data.Dataset(train_data, fields)
-dev_data = data.Dataset(dev_data, fields)
-test_data = data.Dataset(test_data, fields)
+train_data = helpers.load_dataset(f"{DATASET_PATH}/tokenized/dev.json", fields)
+dev_data = helpers.load_dataset(f"{DATASET_PATH}/tokenized/dev.json", fields)
+test_data = helpers.load_dataset(f"{DATASET_PATH}/tokenized/test.json", fields)
 
 print(f"Number of training examples: {len(train_data.examples)}")
 print(f"Number of validation examples: {len(dev_data.examples)}")
 print(f"Number of testing examples: {len(test_data.examples)}")
 
-SRC.build_vocab(train_data.src, max_size=MAX_SIZE)
-TRG.build_vocab(train_data.trg, max_size=MAX_SIZE)
+SRC.build_vocab(train_data, max_size=MAX_SIZE)
+TRG.build_vocab(train_data, max_size=MAX_SIZE)
 
 print(f"Unique tokens in source (en) vocabulary: {len(SRC.vocab)}")
 print(f"Unique tokens in target (es) vocabulary: {len(TRG.vocab)}")
@@ -145,21 +140,5 @@ if EVALUATE or BLUE:
     if BLUE:
         bleu_score = helpers.calculate_bleu(model, test_iter, max_trg_len=MAX_TRG_LENGTH, packed_pad=packed_pad)
         print(f'BLEU score = {bleu_score * 100:.2f}')
-
-
-# # Translate sente
-# example_idx = 12
-#
-# src = vars(train_data.examples[example_idx])['src']
-# trg = vars(train_data.examples[example_idx])['trg']
-# print(f'src = {" ".join(src)}')
-# print(f'trg = {" ".join(trg)}')
-#
-# translation, attention = translate_sentence(src, SRC, TRG, model, device)
-# print(f'predicted trg = {" ".join(translation)}')
-#
-# # Display attention
-# display_attention(src, translation, attention)
-
 
 print("Done!")
