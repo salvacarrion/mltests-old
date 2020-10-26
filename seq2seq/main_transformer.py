@@ -55,7 +55,7 @@ TRG = data.Field(tokenize='spacy', tokenizer_language="es", init_token=SOS_WORD,
 fields = [('src', SRC), ('trg', TRG)]
 
 # Load examples
-train_data = helpers.load_dataset(f"{DATASET_PATH}/tokenized/dev.json", fields)
+train_data = helpers.load_dataset(f"{DATASET_PATH}/tokenized/train.json", fields)
 dev_data = helpers.load_dataset(f"{DATASET_PATH}/tokenized/dev.json", fields)
 test_data = helpers.load_dataset(f"{DATASET_PATH}/tokenized/test.json", fields)
 
@@ -63,8 +63,14 @@ print(f"Number of training examples: {len(train_data.examples)}")
 print(f"Number of validation examples: {len(dev_data.examples)}")
 print(f"Number of testing examples: {len(test_data.examples)}")
 
+start = time.time()
+
+# Build vocab
 SRC.build_vocab(train_data, max_size=MAX_SIZE)
 TRG.build_vocab(train_data, max_size=MAX_SIZE)
+
+end = time.time()
+print(f"Time to build vocabularies: {end - start}")
 
 print(f"Unique tokens in source (en) vocabulary: {len(SRC.vocab)}")
 print(f"Unique tokens in target (es) vocabulary: {len(TRG.vocab)}")

@@ -193,10 +193,8 @@ def load_dataset(filename, fields):
         for i in tqdm(range(total), total=total):
             line = f.readline()
             example = json.loads(line)
+            example = data.Example().fromlist(example, fields)  # Create Example obj.
             examples.append(example)
-
-    # Convert list of list to a list of Example()
-    examples = [data.Example().fromlist(d, fields) for d in examples]
 
     # Build dataset ("examples" passed by reference)
     dataset = data.Dataset(examples, fields)
