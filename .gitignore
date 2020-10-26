@@ -1,7 +1,10 @@
 # PyCharm files
 .idea/
+
+# Development
 .data/
 checkpoints/
+runs/
 
 # Mac OS
 .DS_Store

@@ -14,15 +14,17 @@ import dill
 from pathlib import Path
 import time
 import json
+import math
 
 import torch
 from torchtext.data import Dataset
+
 
 def train(model, train_iter, optimizer, criterion, clip, packed_pad=False, teacher_forcing_ratio=0.5):
     model.train()
     epoch_loss = 0
 
-    for i, batch in enumerate(train_iter):
+    for i, batch in tqdm(enumerate(train_iter), total=len(train_iter)):
         # Get data
         (src, src_len) = batch.src if packed_pad else (batch.src, None)
         trg = batch.trg
@@ -67,7 +69,7 @@ def evaluate(model, test_iter, criterion, packed_pad=False, teacher_forcing_rati
     epoch_loss = 0
 
     with torch.no_grad():
-        for i, batch in enumerate(test_iter):
+        for i, batch in tqdm(enumerate(test_iter), total=len(test_iter)):
             # Get data
             (src, src_len) = batch.src if packed_pad else (batch.src, None)
             trg = batch.trg
@@ -202,3 +204,4 @@ def load_dataset(filename, fields):
     end = time.time()
     print(f"Load dataset: [Total time= {end - start}; Num. examples={len(dataset.examples)}]")
     return dataset
+
