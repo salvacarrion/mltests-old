@@ -32,15 +32,17 @@ def fit(model, train_iter, dev_iter, epochs, optimizer, criterion, checkpoint_pa
         valid_loss = evaluate(model, dev_iter, criterion,
                               n_iter=n_iter, tb_writer=val_writer, tb_batch_rate=tb_batch_rate)
 
-        # Summary report
-        summary_report(train_loss, valid_loss, n_iter, start_time)
-
-        # Checkpoint
+        # Checkpoint (in case there is an error later, do checkpoint first)
         diff_loss = valid_loss - best_valid_loss  # The lower, the better
         if valid_loss < best_valid_loss:
             torch.save(model.state_dict(), checkpoint_path)
             best_valid_loss = valid_loss
             print("Checkpoint saved! Loss improvement: {:.5f}".format(diff_loss))
+
+        # Summary report
+        summary_report(train_loss, valid_loss, start_time=start_time,
+                       tr_writer=tr_writer, val_writer=val_writer, n_iter=n_iter)
+
 
 
 def train(model, train_iter, optimizer, criterion, clip, n_iter=None, tb_writer=None, tb_batch_rate=None):
