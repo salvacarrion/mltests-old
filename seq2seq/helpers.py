@@ -20,7 +20,8 @@ import torch
 from torchtext.data import Dataset
 
 
-def train(model, train_iter, optimizer, criterion, clip, packed_pad=False, teacher_forcing_ratio=0.5):
+def train(model, train_iter, optimizer, criterion, clip, packed_pad=False, teacher_forcing_ratio=0.5,
+          n_iter=None, tb_writer=None, tb_batch_rate=100):
     model.train()
     epoch_loss = 0
 
@@ -61,10 +62,19 @@ def train(model, train_iter, optimizer, criterion, clip, packed_pad=False, teach
         optimizer.step()
 
         epoch_loss += loss.item()
+
+        # Tensorboard
+        bn_iter = (n_iter-1) * len(train_iter) + (i+1)
+        if tb_writer and i % tb_batch_rate == 0:
+            b_loss = epoch_loss / (i+1)
+            tb_writer.add_scalar('Loss/batch', b_loss, bn_iter)
+            tb_writer.add_scalar('PPL/batch', math.exp(b_loss), bn_iter)
+
     return epoch_loss / len(train_iter)
 
 
-def evaluate(model, test_iter, criterion, packed_pad=False, teacher_forcing_ratio=0.0):
+def evaluate(model, test_iter, criterion, packed_pad=False, teacher_forcing_ratio=0.0,
+             n_iter=None, tb_writer=None, tb_batch_rate=100):
     model.eval()
     epoch_loss = 0
 
@@ -99,6 +109,14 @@ def evaluate(model, test_iter, criterion, packed_pad=False, teacher_forcing_rati
             loss = criterion(output, trg)
 
             epoch_loss += loss.item()
+
+            # Tensorboard
+            bn_iter = (n_iter - 1) * len(test_iter) + (i + 1)
+            if tb_writer and i % tb_batch_rate == 0:
+                b_loss = epoch_loss / (i + 1)
+                tb_writer.add_scalar('Loss/batch', b_loss, bn_iter)
+                tb_writer.add_scalar('PPL/batch', math.exp(b_loss), bn_iter)
+
     return epoch_loss / len(test_iter)
 
 

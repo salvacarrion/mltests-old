@@ -32,11 +32,11 @@ TRAIN = True
 EVALUATE = True
 BLUE = True
 TENSORBOARD = True
-ENABLE_PARALLELIZATION = True
+ENABLE_PARALLELIZATION = False
 LEARNING_RATE = 0.0005
-MIN_FREQ = 5
-MAX_SIZE = 8000 - 4  # 4 reserved words <sos>, <eos>, <pad>, <unk>
-N_EPOCHS = 2048
+MIN_FREQ = 3
+MAX_SIZE = 10000 - 4  # 4 reserved words <sos>, <eos>, <pad>, <unk>
+N_EPOCHS = 1000
 MAX_SRC_LENGTH = 100 + 2  # Doesn't include <sos>, <eos>
 MAX_TRG_LENGTH = 100 + 2  # Doesn't include <sos>, <eos>
 BATCH_SIZE = 32
@@ -44,6 +44,7 @@ CHECKPOINT_PATH = f'checkpoints/checkpoint_{MODEL_NAME}.pt'
 TR_RATIO = 1.0
 DV_RATIO = 1.0
 TS_RATIO = 1.0
+TB_BATCH_RATE = 100
 
 # Deterministic environment
 SEED = 1234
@@ -56,7 +57,6 @@ torch.backends.cudnn.benchmark = False
 
 # Set up fields
 SOS_WORD = '<sos>'
-EOS_WORD = '<eos>'
 EOS_WORD = '<eos>'
 
 # Set fields
@@ -144,10 +144,12 @@ if TRAIN:
         n_iter = epoch + 1
 
         # Train model
-        train_loss = helpers.train(model, train_iter, optimizer, criterion, CLIP, packed_pad, teacher_forcing_ratio)
+        train_loss = helpers.train(model, train_iter, optimizer, criterion, CLIP, packed_pad, teacher_forcing_ratio,
+                                   n_iter=n_iter, tb_writer=train_writer, tb_batch_rate=TB_BATCH_RATE)
 
         # Evaluate model
-        valid_loss = helpers.evaluate(model, dev_iter, criterion, packed_pad, teacher_forcing_ratio)
+        valid_loss = helpers.evaluate(model, dev_iter, criterion, packed_pad, teacher_forcing_ratio,
+                                      n_iter=n_iter, tb_writer=val_writer, tb_batch_rate=TB_BATCH_RATE)
 
         # Checkpoint
         if valid_loss < best_valid_loss:
