@@ -150,7 +150,7 @@ def summary_report(train_loss=None, test_loss=None, start_time=None, tr_writer=N
 
         # Metrics
         test_ppl = math.exp(test_loss)
-        print(f'\t Val. Loss: {test_loss:.3f} |  Val. PPL: {test_ppl:7.3f}')
+        print(f'\t {test_type} Loss: {test_loss:.3f} |  {test_type} PPL: {test_ppl:7.3f}')
 
         # Tensorboard
         if val_writer:
