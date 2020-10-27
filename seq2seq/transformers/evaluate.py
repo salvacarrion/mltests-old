@@ -141,7 +141,7 @@ print("Model loaded!")
 if EVALUATE:
     start = time.time()
     test_loss = helpers.evaluate(model, test_iter, criterion)
-    helpers.summary_report(test_loss=test_loss, start_time=start)
+    helpers.summary_report(test_loss=test_loss, start_time=start, testing=True)
 
 # Calculate BLEU score
 if BLUE:

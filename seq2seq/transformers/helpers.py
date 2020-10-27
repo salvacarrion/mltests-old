@@ -120,7 +120,7 @@ def evaluate(model, test_iter, criterion, n_iter=None, tb_writer=None, tb_batch_
     return epoch_loss / len(test_iter)
 
 
-def summary_report(train_loss=None, test_loss=None, start_time=None, tr_writer=None, val_writer=None, n_iter=0):
+def summary_report(train_loss=None, test_loss=None, start_time=None, tr_writer=None, val_writer=None, n_iter=0, testing=False):
     # Print summary
     if start_time:
         end_time = time.time()
@@ -141,9 +141,11 @@ def summary_report(train_loss=None, test_loss=None, start_time=None, tr_writer=N
 
     # Validation
     if test_loss is not None:
+        test_type = "Test" if testing else "Val."
+
         # Metrics
         test_ppl = math.exp(test_loss)
-        print(f'\t Val. Loss: {test_loss:.3f} |  Val. PPL: {test_ppl:7.3f}')
+        print(f'\t {test_type} Loss: {test_loss:.3f} |  {test_type} PPL: {test_ppl:7.3f}')
 
         # Tensorboard
         if val_writer:
