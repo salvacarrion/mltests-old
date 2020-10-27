@@ -6,10 +6,12 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+from seq2seq import utils
+
 
 def make_model(src_field, trg_field, hid_dim=256, enc_layers=3, dec_layers=3, enc_heads=8, dec_heads=8,
-               enc_pf_dim=512, dec_pf_dim=512, enc_dropout=0.1, dec_dropout=0.1, device=None,
-               max_src_len=100, max_trg_len=100, use_parallelization=False):
+               enc_pf_dim=512, dec_pf_dim=512, enc_dropout=0.1, dec_dropout=0.1,
+               max_src_len=100, max_trg_len=100, device=None, data_parallelism=False):
 
     # Input/Output dims
     input_dim = len(src_field.vocab)
@@ -23,7 +25,19 @@ def make_model(src_field, trg_field, hid_dim=256, enc_layers=3, dec_layers=3, en
     enc = Encoder(input_dim, hid_dim, enc_layers, enc_heads, enc_pf_dim, enc_dropout, max_src_len, device)
     dec = Decoder(output_dim, hid_dim, dec_layers, dec_heads, dec_pf_dim, dec_dropout, max_trg_len, device)
     model = Seq2Seq(enc, dec, src_field, trg_field, device)
+    print(f'The model has {utils.count_parameters(model):,} trainable parameters')
 
+    # Parallelize model
+    device_count = torch.cuda.device_count()
+    device_ids = list(range(torch.cuda.device_count()))
+    print(f"Data parallelism: {data_parallelism}")
+    if data_parallelism and device_count > 1:
+        model = nn.DataParallel(model, device_ids=device_ids)
+        print(f"\t- Num. devices: {torch.cuda.device_count()}")
+        print(f"\t- Device IDs:{str(device_ids)}")
+
+    # Send to device
+    model.to(device)
     return model
 
 
@@ -171,7 +185,7 @@ class Decoder(nn.Module):
         self.max_length = max_length
 
         self.tok_embedding = nn.Embedding(output_dim, hid_dim)
-        self.pos_embedding = nn.Embedding(max_length, hid_dim)
+        self.pos_embedding = nn.Embedding(max_length, hid_dim)  # This limits decoding length at testing
 
         self.layers = nn.ModuleList([DecoderLayer(hid_dim, n_heads, pf_dim, dropout, device)
                                      for _ in range(n_layers)])

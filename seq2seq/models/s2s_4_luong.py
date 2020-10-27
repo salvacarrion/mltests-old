@@ -6,12 +6,12 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+from seq2seq import utils
+
 
 def make_model(src_field, trg_field, enc_emb_dim=256, dec_emb_dim=256,
-               enc_hid_dim=512, dec_hid_dim=512, enc_dropout=0.5, dec_dropout=0.5, device=None):
-    # Set device
-    if not device:
-        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+               enc_hid_dim=512, dec_hid_dim=512, enc_dropout=0.5, dec_dropout=0.5,
+               device=None, data_parallelism=False):
 
     # Input/Output dims
     input_dim = len(src_field.vocab)
@@ -22,6 +22,20 @@ def make_model(src_field, trg_field, enc_emb_dim=256, dec_emb_dim=256,
     enc = Encoder(input_dim, enc_emb_dim, enc_hid_dim, dec_hid_dim, enc_dropout)
     dec = Decoder(output_dim, dec_emb_dim, enc_hid_dim, dec_hid_dim, dec_dropout, attn)
     model = Seq2Seq(enc, dec, src_field, trg_field, device).to(device)
+    print(f'The model has {utils.count_parameters(model):,} trainable parameters')
+
+    # Allow parallelization
+    # Parallelize model
+    device_count = torch.cuda.device_count()
+    device_ids = list(range(torch.cuda.device_count()))
+    print(f"Data parallelism: {data_parallelism}")
+    if data_parallelism and device_count > 1:
+        model = nn.DataParallel(model, device_ids=device_ids)
+        print(f"\t- Num. devices: {torch.cuda.device_count()}")
+        print(f"\t- Device IDs:{str(device_ids)}")
+
+    # Send to device
+    model.to(device)
     return model
 
 
@@ -171,7 +185,7 @@ class Seq2Seq(nn.Module):
         mask = mask.T  # [L, B] => [B, L]
         return mask
 
-    def forward(self, src, src_len, trg, teacher_forcing_ratio=0.5):
+    def forward(self, src, src_len, trg, tf_ratio=0.5):
         # Vars
         batch_size = trg.shape[1]
         trg_max_len = trg.shape[0]
@@ -196,7 +210,7 @@ class Seq2Seq(nn.Module):
             outputs[t] = output
 
             # Teacher forcing
-            teacher_force = random.random() < teacher_forcing_ratio
+            teacher_force = random.random() < tf_ratio
             if teacher_force:  # Use actual token
                 dec_input = trg[t]
             else:

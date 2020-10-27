@@ -84,7 +84,7 @@ class Seq2Seq(nn.Module):
         assert encoder.hid_dim == decoder.hid_dim, \
             "Hidden dimensions of encoder and decoder must be equal!"
 
-    def forward(self, src, trg, teacher_forcing_ratio=0.5):
+    def forward(self, src, trg, tf_ratio=0.5):
         # Vars
         batch_size = trg.shape[1]
         max_len = trg.shape[0]
@@ -104,7 +104,7 @@ class Seq2Seq(nn.Module):
             outputs[t] = output
 
             # Teacher forcing
-            teacher_force = random.random() < teacher_forcing_ratio
+            teacher_force = random.random() < tf_ratio
             top1 = output.max(1)[1]
             dec_input = (trg[t] if teacher_force else top1)
 
