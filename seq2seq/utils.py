@@ -1,6 +1,7 @@
 import time
 import json
 import math
+import pickle
 
 import torch
 from torchtext import data
@@ -96,6 +97,16 @@ def load_dataset(filename, fields, ratio=1.0):
     end = time.time()
     print(f"Load dataset: [Total time= {end - start}; Num. examples={len(dataset.examples)}]")
     return dataset
+
+
+def load_vocabulary(filename):
+    with open(filename, 'rb') as f:
+        return pickle.load(f)
+
+
+def save_vocabulary(field, savepath):
+    with open(savepath, 'wb') as f:
+        pickle.dump(field.vocab, f)
 
 
 def calculate_bleu(model, data_iter, max_trg_len, packed_pad=False):

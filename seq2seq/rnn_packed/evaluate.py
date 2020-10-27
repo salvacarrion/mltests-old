@@ -8,7 +8,6 @@ import torch.nn as nn
 import torch.optim as optim
 
 from torchtext import data
-from torch.utils.tensorboard import SummaryWriter
 
 from seq2seq.transformers import helpers
 from seq2seq import utils
@@ -28,19 +27,14 @@ DATASET_NAME = "miguel"  # multi30k, miguel
 DATASET_PATH = f"../.data/{DATASET_NAME}"
 TENSORBOARD = True
 ALLOW_DATA_PARALLELISM = False
-LEARNING_RATE = 0.0005
 MIN_FREQ = 3
 MAX_SIZE = 10000 - 4  # 4 reserved words <sos>, <eos>, <pad>, <unk>
-N_EPOCHS = 1000
 MAX_SRC_LENGTH = 100 + 2  # Doesn't include <sos>, <eos>
 MAX_TRG_LENGTH = 100 + 2  # Doesn't include <sos>, <eos>
 MAX_TRG_LENGTH_TEST = int(MAX_TRG_LENGTH * 1.0)  # len>1.0 is not supported by all models
 BATCH_SIZE = 32
 CHECKPOINT_PATH = f'checkpoints/checkpoint_{MODEL_NAME}.pt'
-TR_RATIO = 0.01
-DV_RATIO = 1.0
 TS_RATIO = 1.0
-TB_BATCH_RATE = 100
 SOS_WORD = '<sos>'
 EOS_WORD = '<eos>'
 EVALUATE = True
@@ -78,24 +72,23 @@ SRC = data.Field(tokenize='spacy', tokenizer_language="en", init_token=SOS_WORD,
 TRG = data.Field(tokenize='spacy', tokenizer_language="es", init_token=SOS_WORD, eos_token=EOS_WORD, lower=True, include_lengths=True)
 fields = [('src', SRC), ('trg', TRG)]
 
-# Load examples
-train_data = utils.load_dataset(f"{DATASET_PATH}/tokenized/train.json", fields, TR_RATIO)
-test_data = utils.load_dataset(f"{DATASET_PATH}/tokenized/test.json", fields, TS_RATIO)
+# Load vocabulary
+src_vocab = utils.load_vocabulary(f'{DATASET_PATH}/tokenized/src_vocab.pkl')
+trg_vocab = utils.load_vocabulary(f'{DATASET_PATH}/tokenized/trg_vocab.pkl')
+print("Vocabularies loaded!")
 
-print(f"Number of training examples: {len(train_data.examples)}")
-print(f"Number of testing examples: {len(test_data.examples)}")
-
-start = time.time()
-
-# Build vocab
-SRC.build_vocab(train_data, max_size=MAX_SIZE)
-TRG.build_vocab(train_data, max_size=MAX_SIZE)
-
-end = time.time()
-print(f"Time to build vocabularies: {end - start} sec")
-
+# Add vocabularies to fields
+SRC.vocab = src_vocab
+TRG.vocab = trg_vocab
 print(f"Unique tokens in source (en) vocabulary: {len(SRC.vocab)}")
 print(f"Unique tokens in target (es) vocabulary: {len(TRG.vocab)}")
+
+###########################################################################
+###########################################################################
+
+# Load examples
+test_data = utils.load_dataset(f"{DATASET_PATH}/tokenized/test.json", fields, TS_RATIO)
+print(f"Number of testing examples: {len(test_data.examples)}")
 
 ###########################################################################
 ###########################################################################
@@ -105,8 +98,7 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print(utils.gpu_info())
 
 # Set iterator (this is where words are replaced by indices, and <sos>/<eos> tokens are appended
-train_iter, test_iter = data.BucketIterator.splits((train_data, test_data),
-                                                   batch_size=BATCH_SIZE, device=device, sort=False)
+test_iter = data.BucketIterator(test_data, batch_size=BATCH_SIZE, device=device, sort=False)
 
 ###########################################################################
 ###########################################################################
@@ -114,24 +106,15 @@ train_iter, test_iter = data.BucketIterator.splits((train_data, test_data),
 # Select model
 if MODEL_NAME == "rnn_bahdanau":
     from seq2seq.models import s2s_4_bahdanau as builder
-
     model = builder.make_model(src_field=SRC, trg_field=TRG, device=device, data_parallelism=ALLOW_DATA_PARALLELISM)
-    model.apply(builder.init_weights)
-    optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
 
 elif MODEL_NAME == "rnn_ba_lu_mixed":
     from seq2seq.models import s2s_4_ba_lu_mixed as builder
-
     model = builder.make_model(src_field=SRC, trg_field=TRG, device=device, data_parallelism=ALLOW_DATA_PARALLELISM)
-    model.apply(builder.init_weights)
-    optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
 
 elif MODEL_NAME == "rnn_luong":
     from seq2seq.models import s2s_4_luong as builder
-
     model = builder.make_model(src_field=SRC, trg_field=TRG, device=device, data_parallelism=ALLOW_DATA_PARALLELISM)
-    model.apply(builder.init_weights)
-    optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
 
 else:
     raise ValueError("Unknown model name")
