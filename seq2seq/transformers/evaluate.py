@@ -26,17 +26,13 @@ MODEL_NAME = "simple_transformer"
 # Build model and initialize
 DATASET_NAME = "miguel"  # multi30k, miguel
 DATASET_PATH = f"../.data/{DATASET_NAME}"
-TENSORBOARD = True
 ALLOW_DATA_PARALLELISM = False
-MIN_FREQ = 3
-MAX_SIZE = 10000 - 4  # 4 reserved words <sos>, <eos>, <pad>, <unk>
 MAX_SRC_LENGTH = 100 + 2  # Doesn't include <sos>, <eos>
 MAX_TRG_LENGTH = 100 + 2  # Doesn't include <sos>, <eos>
 MAX_TRG_LENGTH_TEST = int(MAX_TRG_LENGTH * 1.0)  # len>1.0 is not supported by all models
 BATCH_SIZE = 32
 CHECKPOINT_PATH = f'checkpoints/checkpoint_{MODEL_NAME}.pt'
 TS_RATIO = 1.0
-TB_BATCH_RATE = 100
 SOS_WORD = '<sos>'
 EOS_WORD = '<eos>'
 EVALUATE = True

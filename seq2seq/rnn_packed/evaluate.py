@@ -25,10 +25,7 @@ MODEL_NAME = "rnn_luong"
 # Build model and initialize
 DATASET_NAME = "miguel"  # multi30k, miguel
 DATASET_PATH = f"../.data/{DATASET_NAME}"
-TENSORBOARD = True
 ALLOW_DATA_PARALLELISM = False
-MIN_FREQ = 3
-MAX_SIZE = 10000 - 4  # 4 reserved words <sos>, <eos>, <pad>, <unk>
 MAX_SRC_LENGTH = 100 + 2  # Doesn't include <sos>, <eos>
 MAX_TRG_LENGTH = 100 + 2  # Doesn't include <sos>, <eos>
 MAX_TRG_LENGTH_TEST = int(MAX_TRG_LENGTH * 1.0)  # len>1.0 is not supported by all models
