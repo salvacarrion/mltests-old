@@ -10,9 +10,6 @@ import torch.nn.functional as F
 def make_model(src_field, trg_field, hid_dim=256, enc_layers=3, dec_layers=3, enc_heads=8, dec_heads=8,
                enc_pf_dim=512, dec_pf_dim=512, enc_dropout=0.1, dec_dropout=0.1, device=None,
                max_src_len=100, max_trg_len=100, use_parallelization=False):
-    # Set device
-    if not device:
-        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     # Input/Output dims
     input_dim = len(src_field.vocab)
@@ -26,14 +23,6 @@ def make_model(src_field, trg_field, hid_dim=256, enc_layers=3, dec_layers=3, en
     enc = Encoder(input_dim, hid_dim, enc_layers, enc_heads, enc_pf_dim, enc_dropout, max_src_len, device)
     dec = Decoder(output_dim, hid_dim, dec_layers, dec_heads, dec_pf_dim, dec_dropout, max_trg_len, device)
     model = Seq2Seq(enc, dec, src_field, trg_field, device)
-
-    # Parallelize model
-    if use_parallelization and torch.cuda.device_count() > 1:
-        model = nn.DataParallel(model)
-        print(f"Parallelizing model: {torch.cuda.device_count()} devices")
-
-    # Send to device
-    model.to(device)
 
     return model
 
@@ -60,7 +49,7 @@ class Encoder(nn.Module):
                                                   device) for _ in range(n_layers)])
 
         self.dropout = nn.Dropout(dropout)
-        self.scale = torch.sqrt(torch.FloatTensor([hid_dim])).to(device)
+        self.scale = torch.nn.Parameter(torch.sqrt(torch.FloatTensor([hid_dim])), requires_grad=False)
 
     def forward(self, src, src_mask):
         batch_size = src.shape[0]
@@ -105,7 +94,7 @@ class EncoderLayer(nn.Module):
 class MultiHeadAttentionLayer(nn.Module):
     def __init__(self, hid_dim, n_heads, dropout, device):
         super().__init__()
-
+        self.device = device
         assert hid_dim % n_heads == 0
 
         self.hid_dim = hid_dim
@@ -120,7 +109,7 @@ class MultiHeadAttentionLayer(nn.Module):
 
         self.dropout = nn.Dropout(dropout)
 
-        self.scale = torch.sqrt(torch.FloatTensor([self.head_dim])).to(device)
+        self.scale = torch.nn.Parameter(torch.sqrt(torch.FloatTensor([self.head_dim])), requires_grad=False)
 
     def forward(self, query, key, value, mask=None):
         batch_size = query.shape[0]
@@ -191,7 +180,7 @@ class Decoder(nn.Module):
 
         self.dropout = nn.Dropout(dropout)
 
-        self.scale = torch.sqrt(torch.FloatTensor([hid_dim])).to(device)
+        self.scale = torch.nn.Parameter(torch.sqrt(torch.FloatTensor([hid_dim])), requires_grad=False)
 
     def forward(self, trg, enc_src, trg_mask, src_mask):
         batch_size = trg.shape[0]

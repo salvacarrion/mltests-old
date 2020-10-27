@@ -39,9 +39,9 @@ MAX_SIZE = 8000 - 4  # 4 reserved words <sos>, <eos>, <pad>, <unk>
 N_EPOCHS = 2048
 MAX_SRC_LENGTH = 100 + 2  # Doesn't include <sos>, <eos>
 MAX_TRG_LENGTH = 100 + 2  # Doesn't include <sos>, <eos>
-BATCH_SIZE = 64
+BATCH_SIZE = 32
 CHECKPOINT_PATH = f'checkpoints/checkpoint_{MODEL_NAME}.pt'
-TR_RATIO = 0.1
+TR_RATIO = 1.0
 DV_RATIO = 1.0
 TS_RATIO = 1.0
 
@@ -56,6 +56,7 @@ torch.backends.cudnn.benchmark = False
 
 # Set up fields
 SOS_WORD = '<sos>'
+EOS_WORD = '<eos>'
 EOS_WORD = '<eos>'
 
 # Set fields
@@ -96,12 +97,21 @@ train_iter, dev_iter, test_iter = data.BucketIterator.splits(
 if MODEL_NAME == "simple_transformer":
     from seq2seq.models import s2s_6_transfomer as s2s_model
     model = s2s_model.make_model(src_field=SRC, trg_field=TRG,
-                                 max_src_len=MAX_SRC_LENGTH, max_trg_len=MAX_TRG_LENGTH, use_parallelization=ENABLE_PARALLELIZATION)
+                                 max_src_len=MAX_SRC_LENGTH, max_trg_len=MAX_TRG_LENGTH,
+                                 device=device)
     model.apply(s2s_model.init_weights)
     optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
 
 else:
     raise ValueError("Unknown model name")
+
+# Parallelize model
+if ENABLE_PARALLELIZATION and torch.cuda.device_count() > 1:
+    model = nn.DataParallel(model, device_ids=[0, 1])
+    print(f"Parallelizing model: {torch.cuda.device_count()} devices")
+
+# Send to device
+model.to(device)
 
 print(f"Selected model: {MODEL_NAME}")
 print(f'The model has {utils.count_parameters(model):,} trainable parameters')
