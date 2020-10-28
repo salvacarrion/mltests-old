@@ -37,7 +37,7 @@ MAX_SRC_LENGTH = 100 + 2  # Doesn't include <sos>, <eos>
 MAX_TRG_LENGTH = 100 + 2  # Doesn't include <sos>, <eos>
 BATCH_SIZE = 32
 CHECKPOINT_PATH = f'checkpoints/checkpoint_{MODEL_NAME}.pt'
-TR_RATIO = 1.0
+TR_RATIO = 0.01
 DV_RATIO = 1.0
 TB_BATCH_RATE = 100
 SOS_WORD = '<sos>'
@@ -71,8 +71,8 @@ torch.backends.cudnn.benchmark = False
 ###########################################################################
 
 # Set fields
-SRC = data.Field(tokenize='spacy', tokenizer_language="en", init_token=SOS_WORD, eos_token=EOS_WORD, lower=True, include_lengths=True)
-TRG = data.Field(tokenize='spacy', tokenizer_language="es", init_token=SOS_WORD, eos_token=EOS_WORD, lower=True, include_lengths=False)
+SRC = data.Field(tokenize='spacy', tokenizer_language="en", init_token=SOS_WORD, eos_token=EOS_WORD, lower=True, include_lengths=True, batch_first=True)
+TRG = data.Field(tokenize='spacy', tokenizer_language="es", init_token=SOS_WORD, eos_token=EOS_WORD, lower=True, include_lengths=True, batch_first=True)
 fields = [('src', SRC), ('trg', TRG)]
 
 # Load examples

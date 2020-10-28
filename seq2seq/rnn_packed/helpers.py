@@ -60,6 +60,7 @@ def train(model, train_iter, optimizer, criterion, clip, n_iter=None, tb_writer=
         output = model(src, src_len, trg, tf_ratio)
 
         # Ignore <sos> token
+        trg = trg.permute(1, 0).contiguous()  # Revert DataParallelism trick
         output, trg = output[1:], trg[1:]
 
         # Reshape output / target
@@ -102,6 +103,7 @@ def evaluate(model, test_iter, criterion, n_iter=None, tb_writer=None, tb_batch_
             output = model(src, src_len, trg, tf_ratio)
 
             # Ignore <sos> token
+            trg = trg.permute(1, 0).contiguous()  # Revert DataParallelism trick
             output, trg = output[1:], trg[1:]
 
             # Reshape output / target

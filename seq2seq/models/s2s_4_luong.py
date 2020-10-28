@@ -65,8 +65,8 @@ class Encoder(nn.Module):
     def forward(self, src, src_len):
         embedded = self.dropout(self.embedding(src))
 
-        total_length = embedded.size(0)  # get the max sequence length (needed for DataParallel)
-        packed_embedded = nn.utils.rnn.pack_padded_sequence(embedded, src_len.cpu(), enforce_sorted=False)
+        total_length = embedded.size(1)  # get the max sequence length (needed for DataParallel)
+        packed_embedded = nn.utils.rnn.pack_padded_sequence(embedded, src_len.cpu(), enforce_sorted=False, batch_first=True)
 
         # packed_outputs is a packed sequence containing all hidden states
         # hidden is now from the final non-padded element in the batch
@@ -74,9 +74,10 @@ class Encoder(nn.Module):
 
         # outputs is now a non-packed sequence, all hidden states obtained
         #  when the input is a pad token are all zeros
-        outputs, _ = nn.utils.rnn.pad_packed_sequence(packed_outputs, total_length=total_length)
+        outputs, _ = nn.utils.rnn.pad_packed_sequence(packed_outputs, total_length=total_length, batch_first=True)
+        outputs = outputs.permute(1, 0, 2)  # Permute due to the batch_first trick for DataParallel
 
-        # Concat hiding layers across "embedding"
+        # Concat hidding layers across "embedding"
         h_fw = hidden[-2, :, :]
         h_bw = hidden[-1, :, :]
         hidden = torch.cat([h_fw, h_bw], dim=1)
@@ -143,13 +144,14 @@ class Decoder(nn.Module):
         self.out = nn.Linear((enc_hid_dim * 2) + dec_hid_dim + emb_dim, output_dim)  # Luong
 
     def forward(self, trg, decoder_hidden, encoder_outputs, mask):
-        # Target => One word at a time
+        # Target => One word at a time | (B) => (1, B)
         embedded = self.dropout(self.embedding(trg.unsqueeze(0)))
 
+        # decoder_hidden: (B, D) => (1, B, D)
         rnn_output, decoder_hidden = self.rnn(embedded, decoder_hidden.unsqueeze(0))
         assert (rnn_output == decoder_hidden).all()
 
-        # Compute attention
+        # Compute attention: (1, B, D), (1, B, D), (B, L) => (B, L)
         attn_weights = self.attention(rnn_output, encoder_outputs, mask)
 
         # Reshape
@@ -183,13 +185,13 @@ class Seq2Seq(nn.Module):
     def create_mask(self, src):
         pad_idx = self.src_field.vocab.stoi[self.src_field.pad_token]
         mask = (src != pad_idx)
-        mask = mask.T  # [L, B] => [B, L]
+        #mask = mask.T  # [L, B] => [B, L]
         return mask
 
     def forward(self, src, src_len, trg, tf_ratio=0.5):
         # Vars
-        batch_size = trg.shape[1]
-        trg_max_len = trg.shape[0]
+        batch_size = trg.shape[0]
+        trg_max_len = trg.shape[1]
         trg_vocab_size = self.decoder.output_dim
 
         # Store outputs (L, B, 1)  => Indices
@@ -199,7 +201,7 @@ class Seq2Seq(nn.Module):
         encoder_outputs, hidden = self.encoder(src, src_len)
 
         # first input to the decoder is the <sos> token
-        dec_input = trg[0, :]  # Get first word index
+        dec_input = trg[:, 0]  # Get first word index
         # There is no point in setting output[0] to <sos> since it will be ignored later
 
         # Get masks for src != <pad> => [0 0 0 0 0 1 1]
@@ -213,7 +215,7 @@ class Seq2Seq(nn.Module):
             # Teacher forcing
             teacher_force = random.random() < tf_ratio
             if teacher_force:  # Use actual token
-                dec_input = trg[t]
+                dec_input = trg[:, t]
             else:
                 top1 = output.max(1)[1]  # [0]=>values; [1]=>indices
                 dec_input = top1
