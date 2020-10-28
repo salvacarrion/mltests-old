@@ -28,17 +28,18 @@ DATASET_NAME = "miguel"  # multi30k, miguel
 DATASET_PATH = f"../.data/{DATASET_NAME}"
 TENSORBOARD = True
 ALLOW_DATA_PARALLELISM = False
-LEARNING_RATE = 0.0005
+LEARNING_RATE = 0.00025
 MIN_FREQ = 3
 MAX_SIZE = 10000 - 4  # 4 reserved words <sos>, <eos>, <pad>, <unk>
 N_EPOCHS = 1000
 MAX_SRC_LENGTH = 100 + 2  # Doesn't include <sos>, <eos>
 MAX_TRG_LENGTH = 100 + 2  # Doesn't include <sos>, <eos>
 BATCH_SIZE = 32
-CHECKPOINT_PATH = f'checkpoints/checkpoint_{MODEL_NAME}.pt'
 TR_RATIO = 0.01
 DV_RATIO = 1.0
 TB_BATCH_RATE = 100
+INIT_CHECKPOINT_PATH = "checkpoints/31.27_checkpoint_simple_transformer.pt"
+CHECKPOINT_PATH = f"checkpoints/{MODEL_NAME}" + "_{}.pt"
 SOS_WORD = '<sos>'
 EOS_WORD = '<eos>'
 
@@ -51,6 +52,7 @@ print(f"- Mode: Training")
 print(f"- Executing model: {EXPERIMENT_NAME}")
 print(f"- Experiment name: {MODEL_NAME}")
 print(f"- Checkpoint path: {CHECKPOINT_PATH}")
+print(f"- Init checkpoint path: {INIT_CHECKPOINT_PATH}")
 print("###########################################################################")
 print("###########################################################################")
 
@@ -113,12 +115,17 @@ if MODEL_NAME == "simple_transformer":
     model = builder.make_model(src_field=SRC, trg_field=TRG,
                                max_src_len=MAX_SRC_LENGTH, max_trg_len=MAX_TRG_LENGTH, device=device,
                                data_parallelism=ALLOW_DATA_PARALLELISM)
-    model.apply(builder.init_weights)
-    optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
 
 else:
     raise ValueError("Unknown model name")
 
+
+# Initialize model
+if INIT_CHECKPOINT_PATH:
+    model.load_state_dict(torch.load(INIT_CHECKPOINT_PATH))
+    print("Checkpoint loaded!")
+else:
+    model.apply(builder.init_weights)
 
 ###########################################################################
 ###########################################################################
@@ -126,6 +133,9 @@ else:
 # Set loss (ignore when the target token is <pad>)
 TRG_PAD_IDX = TRG.vocab.stoi[TRG.pad_token]
 criterion = nn.CrossEntropyLoss(ignore_index=TRG_PAD_IDX)
+
+# Set optimizer
+optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
 
 ###########################################################################
 ###########################################################################
