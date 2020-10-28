@@ -38,7 +38,6 @@ BATCH_SIZE = 32
 CHECKPOINT_PATH = f'checkpoints/checkpoint_{MODEL_NAME}.pt'
 TR_RATIO = 0.01
 DV_RATIO = 1.0
-TS_RATIO = 1.0
 TB_BATCH_RATE = 100
 SOS_WORD = '<sos>'
 EOS_WORD = '<eos>'
@@ -78,11 +77,9 @@ fields = [('src', SRC), ('trg', TRG)]
 # Load examples
 train_data = utils.load_dataset(f"{DATASET_PATH}/tokenized/train.json", fields, TR_RATIO)
 dev_data = utils.load_dataset(f"{DATASET_PATH}/tokenized/dev.json", fields, DV_RATIO)
-test_data = utils.load_dataset(f"{DATASET_PATH}/tokenized/test.json", fields, TS_RATIO)
 
 print(f"Number of training examples: {len(train_data.examples)}")
 print(f"Number of validation examples: {len(dev_data.examples)}")
-print(f"Number of testing examples: {len(test_data.examples)}")
 
 start = time.time()
 
@@ -104,8 +101,8 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print(utils.gpu_info())
 
 # Set iterator (this is where words are replaced by indices, and <sos>/<eos> tokens are appended
-train_iter, dev_iter, test_iter = data.BucketIterator.splits((train_data, dev_data, test_data),
-                                                             batch_size=BATCH_SIZE, device=device, sort=False)
+train_iter, dev_iter = data.BucketIterator.splits((train_data, dev_data),
+                                                  batch_size=BATCH_SIZE, device=device, sort=False)
 
 ###########################################################################
 ###########################################################################
