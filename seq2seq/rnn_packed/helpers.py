@@ -50,7 +50,7 @@ def train(model, train_iter, optimizer, criterion, clip, n_iter=None, tb_writer=
 
     for i, batch in tqdm(enumerate(train_iter), total=len(train_iter)):
         # Get data
-        (src, src_len), trg = batch.src,  batch.trg
+        (src, src_len), (trg, trg_len) = batch.src, batch.trg
 
         # Reset grads and get output
         optimizer.zero_grad()
@@ -95,7 +95,7 @@ def evaluate(model, test_iter, criterion, n_iter=None, tb_writer=None, tb_batch_
     with torch.no_grad():
         for i, batch in tqdm(enumerate(test_iter), total=len(test_iter)):
             # Get data
-            (src, src_len), trg = batch.src, batch.trg
+            (src, src_len), (trg, trg_len) = batch.src, batch.trg
 
             ##############################
             # Feed input

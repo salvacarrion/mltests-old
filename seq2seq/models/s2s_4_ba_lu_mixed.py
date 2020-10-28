@@ -64,7 +64,8 @@ class Encoder(nn.Module):
     def forward(self, src, src_len):
         embedded = self.dropout(self.embedding(src))
 
-        packed_embedded = nn.utils.rnn.pack_padded_sequence(embedded, src_len)
+        total_length = embedded.size(0)  # get the max sequence length (needed for DataParallel)
+        packed_embedded = nn.utils.rnn.pack_padded_sequence(embedded, src_len.cpu(), enforce_sorted=False)
 
         # packed_outputs is a packed sequence containing all hidden states
         # hidden is now from the final non-padded element in the batch
@@ -72,7 +73,7 @@ class Encoder(nn.Module):
 
         # outputs is now a non-packed sequence, all hidden states obtained
         #  when the input is a pad token are all zeros
-        outputs, _ = nn.utils.rnn.pad_packed_sequence(packed_outputs)
+        outputs, _ = nn.utils.rnn.pad_packed_sequence(packed_outputs, total_length=total_length)
 
         # Concat hiding layers across "embedding"
         h_fw = hidden[-2, :, :]

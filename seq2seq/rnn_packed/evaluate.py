@@ -9,7 +9,7 @@ import torch.optim as optim
 
 from torchtext import data
 
-from seq2seq.transformers import helpers
+from seq2seq.rnn_packed import helpers
 from seq2seq import utils
 
 ###########################################################################
@@ -30,7 +30,7 @@ MAX_SRC_LENGTH = 100 + 2  # Doesn't include <sos>, <eos>
 MAX_TRG_LENGTH = 100 + 2  # Doesn't include <sos>, <eos>
 MAX_TRG_LENGTH_TEST = int(MAX_TRG_LENGTH * 1.0)  # len>1.0 is not supported by all models
 BATCH_SIZE = 32
-CHECKPOINT_PATH = f'checkpoints/checkpoint_{MODEL_NAME}.pt'
+CHECKPOINT_PATH = f'checkpoints/checkpoint_rnn_luong.pt'
 TS_RATIO = 1.0
 SOS_WORD = '<sos>'
 EOS_WORD = '<eos>'
@@ -139,7 +139,7 @@ if EVALUATE:
 # Calculate BLEU score
 if BLUE:
     start = time.time()
-    bleu_score = utils.calculate_bleu(model, test_iter, max_trg_len=MAX_TRG_LENGTH_TEST)
+    bleu_score = utils.calculate_bleu(model, test_iter, max_trg_len=MAX_TRG_LENGTH_TEST, packed_pad=True)
 
     end_time = time.time()
     epoch_mins, epoch_secs = utils.epoch_time(start, end_time)

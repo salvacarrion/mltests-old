@@ -117,14 +117,12 @@ def calculate_bleu(model, data_iter, max_trg_len, packed_pad=False):
     data_iter.batch_size = 1
 
     for batch in tqdm(data_iter, total=len(data_iter)):
-        # Get data
-        (src, src_len) = batch.src if packed_pad else (batch.src, None)
-        trg = batch.trg
-
         # Get output
         if packed_pad:
+            (src, src_len), (trg, trg_len) = batch.src, batch.trg
             trg_indexes, _ = model.translate_sentence(src, src_len, max_trg_len)
         else:  # RNN, Transformers
+            src, trg = batch.src, batch.trg
             trg_indexes, _ = model.translate_sentence(src, max_trg_len)
 
         # Convert predicted indices to tokens
