@@ -7,10 +7,12 @@ import torch
 from torchtext import data
 from torchtext.data.metrics import bleu_score
 
+from tqdm import tqdm
+
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
-
-from tqdm import tqdm
+# import seaborn as sns
+# sns.set() Problems with attention
 
 
 def count_parameters(model):
@@ -34,25 +36,35 @@ def epoch_time(start_time, end_time):
     return elapsed_mins, elapsed_secs
 
 
-def display_attention(sentence, translation, attention):
-    fig = plt.figure(figsize=(10, 10))
-    ax = fig.add_subplot(111)
+def display_attention(sentence, translation, attention, savepath=None, title="Attention", ax=None):
+    if ax is not None:
+        _ax = ax
+    else:
+        fig, _ax = plt.subplots()
 
-    attention = attention.squeeze(1).cpu().detach().numpy()
+    cax = _ax.matshow(attention, cmap='bone')
 
-    cax = ax.matshow(attention, cmap='bone')
+    _ax.tick_params(labelsize=15)
+    _ax.set_xticklabels([''] + sentence, rotation=45)
+    _ax.set_yticklabels([''] + translation)
 
-    ax.tick_params(labelsize=15)
-    ax.set_xticklabels([''] + ['<sos>'] + [t.lower() for t in sentence] + ['<eos>'],
-                       rotation=45)
-    ax.set_yticklabels([''] + translation)
+    _ax.xaxis.set_major_locator(ticker.MultipleLocator(1))
+    _ax.yaxis.set_major_locator(ticker.MultipleLocator(1))
 
-    ax.xaxis.set_major_locator(ticker.MultipleLocator(1))
-    ax.yaxis.set_major_locator(ticker.MultipleLocator(1))
+    _ax.set_title(title)
+    _ax.set_xlabel("Source")
+    _ax.set_ylabel("Translation")
 
-    plt.savefig("test.eps")
-    print("save fig!")
-    plt.close()
+    plt.rcParams['figure.figsize'] = [10, 10]
+
+    # Save figure
+    if savepath:
+        plt.savefig(savepath)
+        print("save attention!")
+
+    if ax is not None:
+        plt.show()
+        plt.close()
 
 
 def save_dataset_examples(dataset, savepath):
@@ -140,3 +152,5 @@ def calculate_bleu(model, data_iter, max_trg_len, packed_pad=False):
     # Compute score
     score = bleu_score(trg_pred, trgs)
     return score
+
+

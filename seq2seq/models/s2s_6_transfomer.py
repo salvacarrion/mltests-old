@@ -316,6 +316,7 @@ class Seq2Seq(nn.Module):
 
         # Set fist word (<sos>)
         trg_indexes = [sos_idx]
+        last_attention = None
 
         for i in range(max_trg_len):
 
@@ -327,7 +328,7 @@ class Seq2Seq(nn.Module):
 
             with torch.no_grad():
                 # Inputs: source + current translation
-                output, _ = self.decoder(trg_tensor, enc_src, trg_mask, src_mask)  # (B, L, output_dim)
+                output, last_attention = self.decoder(trg_tensor, enc_src, trg_mask, src_mask)  # (B, L, output_dim)
 
             # Get predicted token
             # Get maximums of the last dimensions (2). Then, for each batch (:), get last word (-1)
@@ -339,4 +340,27 @@ class Seq2Seq(nn.Module):
             if pred_token == eos_idx:
                 break
 
-        return trg_indexes, []
+        return trg_indexes, last_attention
+
+
+    def translate(self, sentence, max_length=100):
+        # Process sentence
+        src_preprocessed = self.src_field.preprocess(sentence)
+        src_indexes = self.src_field.process([src_preprocessed], self.device)
+
+        trg_indexes, attention = self.translate_sentence(src_indexes, max_trg_len=max_length)
+
+        # Convert to CPU
+        src_indexes = src_indexes.cpu().int().flatten()
+        # trg_indexes = trg_indexes  # It's a list
+        attention = attention.cpu()
+
+        # Convert predicted indices to tokens
+        src_tokens = [self.src_field.vocab.itos[int(i)] for i in src_indexes]
+        trg_pred_tokens = [self.trg_field.vocab.itos[int(i)] for i in trg_indexes]
+
+        # Process <sos> / <eos>
+        # src_tokens = src_tokens  # Keep <sos> and <eos> as reference
+        trg_pred_tokens = trg_pred_tokens[1:]  # Remove <sos> since it's given
+
+        return (src_tokens, trg_pred_tokens), attention
