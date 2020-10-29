@@ -17,8 +17,8 @@ from seq2seq import utils
 ###########################################################################
 
 # Names
-EXPERIMENT_NAME = "runs/transformer"
-MODEL_NAME = "simple_transformer"
+EXPERIMENT_NAME = "runs/transformer_static"
+MODEL_NAME = "transformer_static"
 
 ###########################################################################
 ###########################################################################
@@ -32,13 +32,13 @@ LEARNING_RATE = 0.00025
 MIN_FREQ = 3
 MAX_SIZE = 10000 - 4  # 4 reserved words <sos>, <eos>, <pad>, <unk>
 N_EPOCHS = 1000
-MAX_SRC_LENGTH = 100 + 2  # Doesn't include <sos>, <eos>
-MAX_TRG_LENGTH = 100 + 2  # Doesn't include <sos>, <eos>
+MAX_SRC_LENGTH = 1000 + 2  # Doesn't include <sos>, <eos>
+MAX_TRG_LENGTH = 1000 + 2  # Doesn't include <sos>, <eos>
 BATCH_SIZE = 32
 TR_RATIO = 0.01
 DV_RATIO = 1.0
 TB_BATCH_RATE = 100
-INIT_CHECKPOINT_PATH = "checkpoints/31.27_checkpoint_simple_transformer.pt"
+INIT_CHECKPOINT_PATH = None
 CHECKPOINT_PATH = f"checkpoints/{MODEL_NAME}" + "_{}.pt"
 SOS_WORD = '<sos>'
 EOS_WORD = '<eos>'
@@ -112,6 +112,12 @@ train_iter, dev_iter = data.BucketIterator.splits((train_data, dev_data),
 # Select model
 if MODEL_NAME == "simple_transformer":
     from seq2seq.models import s2s_6_transfomer as builder
+    model = builder.make_model(src_field=SRC, trg_field=TRG,
+                               max_src_len=MAX_SRC_LENGTH, max_trg_len=MAX_TRG_LENGTH, device=device,
+                               data_parallelism=ALLOW_DATA_PARALLELISM)
+
+elif MODEL_NAME == "transformer_static":
+    from seq2seq.models import s2s_6_transfomer_tri as builder
     model = builder.make_model(src_field=SRC, trg_field=TRG,
                                max_src_len=MAX_SRC_LENGTH, max_trg_len=MAX_TRG_LENGTH, device=device,
                                data_parallelism=ALLOW_DATA_PARALLELISM)
