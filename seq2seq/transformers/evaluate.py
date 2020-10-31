@@ -35,7 +35,7 @@ CHECKPOINT_PATH = f'checkpoints/simple_transformer_2.pt'
 TS_RATIO = 1.0
 SOS_WORD = '<sos>'
 EOS_WORD = '<eos>'
-EVALUATE = True
+EVALUATE = False
 BLUE = True
 
 ###########################################################################

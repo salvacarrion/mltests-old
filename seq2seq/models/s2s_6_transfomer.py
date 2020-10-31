@@ -6,7 +6,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from seq2seq import utils
+from seq2seq import utils, search
 
 
 def make_model(src_field, trg_field, hid_dim=256, enc_layers=3, dec_layers=3, enc_heads=8, dec_heads=8,
@@ -256,6 +256,8 @@ class Seq2Seq(nn.Module):
         self.trg_field = trg_field
         self.device = device
 
+        self.softmax = nn.Softmax(dim=2)
+
     def make_src_mask(self, src):
         # Mask <pad>
         pad_idx = self.src_field.vocab.stoi[self.src_field.pad_token]
@@ -300,7 +302,7 @@ class Seq2Seq(nn.Module):
 
         return output, attention
 
-    def translate_sentence(self, src, max_trg_len=50):
+    def _translate_sentence(self, src, max_trg_len=50):
         # Single sentence ("unlimited length")
 
         # Get special indices
@@ -342,6 +344,53 @@ class Seq2Seq(nn.Module):
 
         return trg_indexes, last_attention
 
+    def translate_sentence(self, src, max_trg_len=50, beam_width=1):
+        # Single sentence ("unlimited length")
+
+        # Get special indices
+        sos_idx = self.trg_field.vocab.stoi[self.trg_field.init_token]
+        eos_idx = self.trg_field.vocab.stoi[self.trg_field.eos_token]
+
+        # Build source mask
+        src_mask = self.make_src_mask(src)
+
+        # Run encoder
+        with torch.no_grad():
+            enc_src = self.encoder(src, src_mask)
+
+        # Set fist word (<sos>)
+        trg_indexes = [([sos_idx], [1.0])]  # Common starting point
+        for t in range(max_trg_len):
+            # Get top-k next token. None if ended
+            top_k_beam = search.get_top_tokens(self, (enc_src, src_mask), trg_indexes, beam_width, eos_idx, max_trg_len)
+
+            if top_k_beam is None:
+                break
+            else:
+                new_top_k = search.greedy_decoding(trg_indexes, top_k_beam)
+                new_trg_indexes = search.update_top_k(trg_indexes, new_top_k, beam_width, eos_idx)
+                trg_indexes = new_trg_indexes
+
+        return trg_indexes, []
+
+    def decode_word(self, enc_src, src_mask, trg_indexes):
+            # Get predicted words (all)
+            trg_tensor = torch.LongTensor(trg_indexes).unsqueeze(0).to(self.device)  # (1, 1->L)
+
+            # Build target mask
+            trg_mask = self.make_trg_mask(trg_tensor)  # (B, n_heads, L, L)
+
+            with torch.no_grad():
+                # Inputs: source + current translation
+                output, last_attention = self.decoder(trg_tensor, enc_src, trg_mask, src_mask)  # (B, L, output_dim)
+
+            # Find top k words from the output vocabulary
+            output = self.softmax(output)
+            probs, idxs = output.sort(descending=True)
+
+            # Get last word
+            probs, idxs = probs[:, -1, :], idxs[:, -1, :]
+            return probs, idxs
 
     def translate(self, sentence, max_length=100):
         # Process sentence

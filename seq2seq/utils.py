@@ -137,6 +137,10 @@ def calculate_bleu(model, data_iter, max_trg_len, packed_pad=False):
             src, trg = batch.src, batch.trg
             trg_indexes, _ = model.translate_sentence(src, max_trg_len)
 
+            # Get best
+            trg_indexes_best, trg_prob_best = trg_indexes[0]  # Predictions must be sorted by probability
+            trg_indexes = trg_indexes_best
+
         # Convert predicted indices to tokens
         trg_pred_tokens = [model.trg_field.vocab.itos[i] for i in trg_indexes]
         trg_tokens = [model.trg_field.vocab.itos[i] for i in trg.detach().cpu().int().flatten()]
