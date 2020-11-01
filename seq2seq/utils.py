@@ -133,10 +133,10 @@ def calculate_bleu(model, data_iter, max_trg_len, beam_width, packed_pad=False):
             trg_indexes, _ = model.translate_sentence(src, src_len, max_trg_len)
         else:  # RNN, Transformers
             src, trg = batch.src, batch.trg
-            trg_indexes, _ = model.translate_sentence(src, max_trg_len, beam_width)
+            trg_indexes = model.translate_sentence(src, max_trg_len, beam_width)
 
         # Get best
-        trg_indexes_best, trg_prob_best = trg_indexes[0]  # Predictions must be sorted by probability
+        trg_indexes_best, trg_prob_best, _ = trg_indexes[0]  # Predictions must be sorted by probability
         trg_indexes = trg_indexes_best
 
         # Convert predicted indices to tokens
