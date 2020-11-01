@@ -370,4 +370,6 @@ class Seq2Seq(nn.Module):
             trg_pred_tokens.append([self.trg_field.vocab.itos[int(i)] for i in trg[0]])
             attns.append(trg[2].cpu() if trg[2] is not None else None)  # Get attention
 
+        # Minor clean
+        trg_pred_tokens = [x[1:] for x in trg_pred_tokens]  # Remove <sos> since it's given
         return (src_tokens, trg_pred_tokens), attns

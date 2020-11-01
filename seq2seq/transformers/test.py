@@ -77,21 +77,20 @@ print("Model loaded!")
 model.eval()
 
 # Translate
-src_sentence = "Barack Hussein Obama II is an American politician and attorney who served as the 44th president of the United States of America from 2009 to 2017."
+src_sentence = "The agreement of the European Economic Area in August 1992."
 
 # Beam 1
 (src_tokens, trans_tokens), attns1 = model.translate(src_sentence, max_length=MAX_TRG_LENGTH_TEST, beam_width=1)
 utils.show_translation_pair(src_tokens, trans_tokens, nlp_src=nlp_en, nlp_trg=nlp_es)
 
-# Beam 3
-(src_tokens, trans_tokens), attns3 = model.translate(src_sentence, max_length=MAX_TRG_LENGTH_TEST, beam_width=3)
-utils.show_translation_pair(src_tokens, trans_tokens, nlp_src=nlp_en, nlp_trg=nlp_es)
-
-
 # Plot attention
 head_i = 5
 attn = attns1[0][0]  # Remove Beam and Batch
 utils.display_attention(src_tokens, trans_tokens[0], attn[head_i], title=f"Attention (Head #{head_i})")
+
+# Beam 3
+(src_tokens, trans_tokens), attns3 = model.translate(src_sentence, max_length=MAX_TRG_LENGTH_TEST, beam_width=3)
+utils.show_translation_pair(src_tokens, trans_tokens, nlp_src=nlp_en, nlp_trg=nlp_es)
 
 # Plot attention
 head_i = 5
