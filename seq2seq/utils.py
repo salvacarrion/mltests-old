@@ -2,6 +2,7 @@ import time
 import json
 import math
 import pickle
+import re
 
 import torch
 from torchtext import data
@@ -13,6 +14,8 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 # import seaborn as sns
 # sns.set() Problems with attention
+
+from nltk.tokenize.treebank import TreebankWordDetokenizer
 
 
 def count_parameters(model):
@@ -36,35 +39,30 @@ def epoch_time(start_time, end_time):
     return elapsed_mins, elapsed_secs
 
 
-def display_attention(sentence, translation, attention, savepath=None, title="Attention", ax=None):
-    if ax is not None:
-        _ax = ax
-    else:
-        fig, _ax = plt.subplots()
+def display_attention(sentence, translation, attention, savepath=None, title="Attention"):
+    fig = plt.figure(figsize=(10,10), dpi=100)
+    ax = fig.add_subplot(111)
 
-    cax = _ax.matshow(attention, cmap='bone')
+    cax = ax.matshow(attention, cmap='bone')
 
-    _ax.tick_params(labelsize=15)
-    _ax.set_xticklabels([''] + sentence, rotation=45)
-    _ax.set_yticklabels([''] + translation)
+    ax.tick_params(labelsize=15)
+    ax.set_xticklabels([''] + sentence, rotation=45)
+    ax.set_yticklabels([''] + translation)
 
-    _ax.xaxis.set_major_locator(ticker.MultipleLocator(1))
-    _ax.yaxis.set_major_locator(ticker.MultipleLocator(1))
+    ax.xaxis.set_major_locator(ticker.MultipleLocator(1))
+    ax.yaxis.set_major_locator(ticker.MultipleLocator(1))
 
-    _ax.set_title(title)
-    _ax.set_xlabel("Source")
-    _ax.set_ylabel("Translation")
-
-    plt.rcParams['figure.figsize'] = [10, 10]
+    ax.set_title(title)
+    ax.set_xlabel("Source")
+    ax.set_ylabel("Translation")
 
     # Save figure
     if savepath:
         plt.savefig(savepath)
         print("save attention!")
 
-    if ax is not None:
-        plt.show()
-        plt.close()
+    plt.show()
+    plt.close()
 
 
 def save_dataset_examples(dataset, savepath):
@@ -121,7 +119,7 @@ def save_vocabulary(field, savepath):
         pickle.dump(field.vocab, f)
 
 
-def calculate_bleu(model, data_iter, max_trg_len, packed_pad=False):
+def calculate_bleu(model, data_iter, max_trg_len, beam_width, packed_pad=False):
     trgs = []
     trg_pred = []
 
@@ -135,7 +133,11 @@ def calculate_bleu(model, data_iter, max_trg_len, packed_pad=False):
             trg_indexes, _ = model.translate_sentence(src, src_len, max_trg_len)
         else:  # RNN, Transformers
             src, trg = batch.src, batch.trg
-            trg_indexes, _ = model.translate_sentence(src, max_trg_len)
+            trg_indexes = model.translate_sentence(src, max_trg_len, beam_width)
+
+        # Get best
+        trg_indexes_best, trg_prob_best, _ = trg_indexes[0]  # Predictions must be sorted by probability
+        trg_indexes = trg_indexes_best
 
         # Convert predicted indices to tokens
         trg_pred_tokens = [model.trg_field.vocab.itos[i] for i in trg_indexes]
@@ -154,3 +156,46 @@ def calculate_bleu(model, data_iter, max_trg_len, packed_pad=False):
     return score
 
 
+def detokenize(text):
+    text = [x for x in text if x not in {"<unk>", "<pad>", "<sos>", "<eos>"}]
+    tbwd = TreebankWordDetokenizer()
+    text = tbwd.detokenize(text)
+    return text
+
+
+def truecasing(text, nlp):
+    # Autocapitalize
+    doc = nlp(text)
+    tagged_sent = [(w.text, w.tag_) for w in doc]
+    normalized_sent = [w.capitalize() if t in ["NN", "NNS"] else w for (w, t) in tagged_sent]
+    normalized_sent[0] = normalized_sent[0].capitalize()
+    text = re.sub(r" (?=[\.,'!?:;])", "", ' '.join(normalized_sent))
+    return text
+
+
+def postprocess(text, nlp=None):
+    # Detokenize
+    text = detokenize(text)
+
+    # Basic post-processing
+    text = text.lower().strip()
+
+    # Autocapitalize
+    if nlp:
+        text = truecasing(text, nlp)
+    return text
+
+
+def show_translation_pair(src_tokens, trans_tokens, nlp_src=None, nlp_trg=None):
+    # Source
+    src = postprocess(src_tokens, nlp_src)
+    print(f"- Original: '{src}'")
+
+    # Target
+    trgs = []
+    for i, trans in enumerate(trans_tokens):
+        trg = postprocess(trans, nlp_trg)
+        trgs.append(trgs)
+        print(f"\t=> Translation #{i+1}: '{trg}'")
+
+    return src, trgs

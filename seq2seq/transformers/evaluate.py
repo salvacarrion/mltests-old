@@ -35,8 +35,9 @@ CHECKPOINT_PATH = f'checkpoints/simple_transformer_2.pt'
 TS_RATIO = 1.0
 SOS_WORD = '<sos>'
 EOS_WORD = '<eos>'
-EVALUATE = True
+EVALUATE = False
 BLUE = True
+BEAM_WIDTH = 1
 
 ###########################################################################
 ###########################################################################
@@ -134,7 +135,7 @@ if EVALUATE:
 # Calculate BLEU score
 if BLUE:
     start = time.time()
-    bleu_score = utils.calculate_bleu(model, test_iter, max_trg_len=MAX_TRG_LENGTH_TEST)
+    bleu_score = utils.calculate_bleu(model, test_iter, max_trg_len=MAX_TRG_LENGTH_TEST, beam_width=BEAM_WIDTH)
 
     end_time = time.time()
     epoch_mins, epoch_secs = utils.epoch_time(start, end_time)

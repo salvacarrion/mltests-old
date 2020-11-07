@@ -6,7 +6,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from seq2seq import utils
+from seq2seq import utils, search
 
 
 def make_model(src_field, trg_field, hid_dim=256, enc_layers=3, dec_layers=3, enc_heads=8, dec_heads=8,
@@ -256,6 +256,8 @@ class Seq2Seq(nn.Module):
         self.trg_field = trg_field
         self.device = device
 
+        self.softmax = nn.Softmax(dim=2)
+
     def make_src_mask(self, src):
         # Mask <pad>
         pad_idx = self.src_field.vocab.stoi[self.src_field.pad_token]
@@ -300,7 +302,26 @@ class Seq2Seq(nn.Module):
 
         return output, attention
 
-    def translate_sentence(self, src, max_trg_len=50):
+    def decode_word(self, enc_src, src_mask, trg_indexes):
+            # Get predicted words (all)
+            trg_tensor = torch.LongTensor(trg_indexes).unsqueeze(0).to(self.device)  # (1, 1->L)
+
+            # Build target mask
+            trg_mask = self.make_trg_mask(trg_tensor)  # (B, n_heads, L, L)
+
+            with torch.no_grad():
+                # Inputs: source + current translation
+                output, last_attention = self.decoder(trg_tensor, enc_src, trg_mask, src_mask)  # (B, L, output_dim)
+
+            # Find top k words from the output vocabulary
+            output = self.softmax(output)
+            probs, idxs = output.sort(descending=True)
+
+            # Get last word
+            probs, idxs = probs[:, -1, :], idxs[:, -1, :]
+            return (probs, idxs), last_attention
+
+    def translate_sentence(self, src, max_trg_len, beam_width):
         # Single sentence ("unlimited length")
 
         # Get special indices
@@ -315,52 +336,40 @@ class Seq2Seq(nn.Module):
             enc_src = self.encoder(src, src_mask)
 
         # Set fist word (<sos>)
-        trg_indexes = [sos_idx]
-        last_attention = None
+        trg_indexes = [([sos_idx], [1.0], None)]  # Common starting point (indices, probs, attn)
+        for t in range(max_trg_len):
+            # Get top-k next token. None if ended
+            top_k_beam, last_attention = search.get_top_tokens(self, (enc_src, src_mask), trg_indexes, beam_width, eos_idx, max_trg_len)
 
-        for i in range(max_trg_len):
-
-            # Get predicted words (all)
-            trg_tensor = torch.LongTensor(trg_indexes).unsqueeze(0).to(self.device)  # (1, 1->L)
-
-            # Build target mask
-            trg_mask = self.make_trg_mask(trg_tensor)  # (B, n_heads, L, L)
-
-            with torch.no_grad():
-                # Inputs: source + current translation
-                output, last_attention = self.decoder(trg_tensor, enc_src, trg_mask, src_mask)  # (B, L, output_dim)
-
-            # Get predicted token
-            # Get maximums of the last dimensions (2). Then, for each batch (:), get last word (-1)
-            # => We already "know" the other words since they're the ones we fed
-            pred_token = output.argmax(2)[:, -1].item()
-            trg_indexes.append(pred_token)
-
-            # If predicted token == <eos> => stop
-            if pred_token == eos_idx:
+            if all([x is None for x in top_k_beam]):
                 break
+            else:
+                if beam_width == 1:
+                    new_top_k = search.greedy_search(trg_indexes, top_k_beam, last_attention)
+                else:
+                    new_top_k = search.beam_search(trg_indexes, top_k_beam, beam_width, last_attention)
+                new_trg_indexes = search.update_top_k(trg_indexes, new_top_k, beam_width, eos_idx)
+                trg_indexes = new_trg_indexes
 
-        return trg_indexes, last_attention
+        return trg_indexes
 
-
-    def translate(self, sentence, max_length=100):
+    def translate(self, sentence, max_length, beam_width):
         # Process sentence
         src_preprocessed = self.src_field.preprocess(sentence)
         src_indexes = self.src_field.process([src_preprocessed], self.device)
 
-        trg_indexes, attention = self.translate_sentence(src_indexes, max_trg_len=max_length)
+        trg_pack = self.translate_sentence(src_indexes, max_trg_len=max_length, beam_width=beam_width)
 
         # Convert to CPU
         src_indexes = src_indexes.cpu().int().flatten()
-        # trg_indexes = trg_indexes  # It's a list
-        attention = attention.cpu()
 
         # Convert predicted indices to tokens
         src_tokens = [self.src_field.vocab.itos[int(i)] for i in src_indexes]
-        trg_pred_tokens = [self.trg_field.vocab.itos[int(i)] for i in trg_indexes]
+        trg_pred_tokens, attns = [], []
+        for trg in trg_pack:
+            trg_pred_tokens.append([self.trg_field.vocab.itos[int(i)] for i in trg[0]])
+            attns.append(trg[2].cpu() if trg[2] is not None else None)  # Get attention
 
-        # Process <sos> / <eos>
-        # src_tokens = src_tokens  # Keep <sos> and <eos> as reference
-        trg_pred_tokens = trg_pred_tokens[1:]  # Remove <sos> since it's given
-
-        return (src_tokens, trg_pred_tokens), attention
+        # Minor clean
+        trg_pred_tokens = [x[1:] for x in trg_pred_tokens]  # Remove <sos> since it's given
+        return (src_tokens, trg_pred_tokens), attns
