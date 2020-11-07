@@ -4,7 +4,7 @@
 # Development
 .data/
 checkpoints/
-runs/
+runs*/
 
 # Mac OS
 .DS_Store

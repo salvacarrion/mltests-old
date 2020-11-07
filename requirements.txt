@@ -18,3 +18,9 @@ cython
 tqdm
 dill
 #albumentations
+fastBPE
+regex
+requests
+sacremoses
+subword_nmt
+
