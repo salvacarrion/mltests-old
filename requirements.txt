@@ -1,32 +1,58 @@
-torch
-torchtext
-torchvision
-tensorflow
-keras
-trax
-matplotlib
-seaborn
-spacy
-nltk
+# ML stack
+numpy # a bit picky with tensorflow
 pandas
 scipy
 scikit-learn
 scikit-image
+xgboost
+
+# Visualization
+matplotlib
+seaborn
+
+# Jupyter
+jupyterlab
 jupyter
 ipython
+
+# Others
 cython
 tqdm
 dill
-#albumentations
+regex
+requests
+
+# PyTorch
+torch
+torchtext
+torchvision
+
+# PyTorch ecosystem
+albumentations
+ray
+optuna
+pytorch-lightning
+
+# Tensorflow
+tensorflow  # Includes Tensorboard
+keras
+trax
+
+# HuggingFace
 datasets
 tokenizers
 transformers
+
+# NLP
+spacy
+nltk
 sacrebleu
-optuna
-ray
-regex
-requests
 sacremoses
 subword_nmt
-numpy # a bit picky with tensorflow
 #fastBPE  # Sometimes raises error
+
+
+
+
+
+
