@@ -8,12 +8,12 @@ matplotlib
 seaborn
 spacy
 nltk
-numpy # a bit picky with tensorflow
 pandas
 scipy
 scikit-learn
 scikit-image
 jupyter
+ipython
 cython
 tqdm
 dill
@@ -22,10 +22,11 @@ datasets
 tokenizers
 transformers
 sacrebleu
-fastBPE
+optuna
+ray
 regex
 requests
 sacremoses
 subword_nmt
-optuna
-ray
+numpy # a bit picky with tensorflow
+#fastBPE  # Sometimes raises error
