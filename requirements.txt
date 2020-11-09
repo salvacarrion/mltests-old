@@ -49,7 +49,7 @@ nltk
 sacrebleu
 sacremoses
 subword_nmt
-#fastBPE  # Sometimes raises error
+fastBPE  # Sometimes raises error
 
 
 
