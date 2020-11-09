@@ -18,9 +18,14 @@ cython
 tqdm
 dill
 #albumentations
+datasets
+tokenizers
+transformers
+sacrebleu
 fastBPE
 regex
 requests
 sacremoses
 subword_nmt
-
+optuna
+ray
