@@ -83,10 +83,10 @@ class LitTokenizer:
                      src_vocab_size=30000, trg_vocab_size=30000,
                      src_min_frequency=3, trg_min_frequency=3):
         # Define trainers
-        src_trainer = WordPieceTrainer(vocab_size=src_vocab_size, min_frequency=src_min_frequency, special_tokens=self.special_tokens)
-        trg_trainer = WordPieceTrainer(vocab_size=trg_vocab_size, min_frequency=trg_min_frequency, special_tokens=self.special_tokens)
+        src_trainer = WordPieceTrainer(vocab_size=src_vocab_size, min_frequency=src_min_frequency, special_tokens=list(self.special_tokens))
+        trg_trainer = WordPieceTrainer(vocab_size=trg_vocab_size, min_frequency=trg_min_frequency, special_tokens=list(self.special_tokens))
 
-        # Train tokeniers
+        # Train tokenizers
         self.src_tokenizer.train(src_trainer, src_files)
         self.trg_tokenizer.train(trg_trainer, trg_files)
 
@@ -94,6 +94,7 @@ class LitTokenizer:
         # Source
         self.src_tokenizer.model.save(folder, src_name)
         self.src_tokenizer.save(f"{folder}/{src_name}-vocab.json")
+
         # Target
         self.trg_tokenizer.model.save(folder, trg_name)
         self.trg_tokenizer.save(f"{folder}/{trg_name}-vocab.json")
