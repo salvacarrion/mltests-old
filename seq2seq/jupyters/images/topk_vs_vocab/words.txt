@@ -1,0 +1,12 @@
+th the top 1000 most common words, we will cover 82.63% of the words
+With the top 5000 most common words, we will cover 95.80% of the words
+With the top 10000 most common words, we will cover 98.29% of the words
+With the top 20000 most common words, we will cover 99.43% of the words
+With the top 30000 most common words, we will cover 99.72% of the words
+With the top 40000 most common words, we will cover 99.83% of the words
+With the top 50000 most common words, we will cover 99.89% of the words
+With the top 60000 most common words, we will cover 99.93% of the words
+With the top 70000 most common words, we will cover 99.95% of the words
+With the top 80000 most common words, we will cover 99.96% of the words
+With the top 90000 most common words, we will cover 99.98% of the words
+With the top 100000 most common words, we will cover 100.00% of the words
