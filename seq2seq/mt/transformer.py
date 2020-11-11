@@ -7,6 +7,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from seq2seq import utils, search
+import matplotlib.pyplot as plt
 
 
 def init_weights(m):
@@ -14,50 +15,68 @@ def init_weights(m):
         nn.init.xavier_uniform_(m.weight.data)
 
 
+class PositionalEncoding(nn.Module):
+
+    def __init__(self, d_model, max_len):
+        super(PositionalEncoding, self).__init__()
+
+        # Compute the positional encodings once in log space.
+        pe = torch.zeros(max_len, d_model)
+        position = torch.arange(0, max_len).unsqueeze(1)
+        div_term = torch.exp(torch.arange(0, d_model, 2) * -(math.log(10000.0) / d_model))
+        pe[:, 0::2] = torch.sin(position * div_term)
+        pe[:, 1::2] = torch.cos(position * div_term)
+        self.register_buffer("pe", pe.unsqueeze(0))
+
+    def forward(self, x):
+        return self.pe[:, :x.size(1), :]
+
+
 class Encoder(nn.Module):
 
-    def __init__(self, input_dim, hid_dim, n_layers, n_heads, pf_dim, dropout, max_length):
+    def __init__(self, input_dim, d_model, n_layers, n_heads, dff, dropout, max_length):
         super().__init__()
         self.max_length = max_length
 
-        self.tok_embedding = nn.Embedding(input_dim, hid_dim)  # Vocab => emb
-        self.pos_embedding = nn.Embedding(max_length, hid_dim)  # Pos => emb_pos
+        self.tok_embedding = nn.Embedding(input_dim, d_model)  # Vocab => emb
+        self.pos_embedding = PositionalEncoding(d_model, max_length)  # Pos => emb_pos
+        # self.pos_embedding = nn.Embedding(max_length, d_model)  # Pos => emb_pos
 
-        self.layers = nn.ModuleList([EncoderLayer(hid_dim,
+        self.layers = nn.ModuleList([EncoderLayer(d_model,
                                                   n_heads,
-                                                  pf_dim,
+                                                  dff,
                                                   dropout) for _ in range(n_layers)])
 
         self.dropout = nn.Dropout(dropout)
-        self.scale = torch.nn.Parameter(torch.sqrt(torch.FloatTensor([hid_dim])), requires_grad=False)
+        self.scale = math.sqrt(d_model)
 
     def forward(self, src, src_mask):
         batch_size = src.shape[0]
         src_len = src.shape[1]
         assert src_len <= self.max_length
 
-        # Initial positions: 0,1,2,... for each sample
-        device = src.device
-        pos = torch.arange(0, src_len).unsqueeze(0).repeat(batch_size, 1).to(device)  # (B, src_len)
+        # # Initial positions: 0,1,2,... for each sample
+        # device = src.device
+        # pos = torch.arange(0, src_len).unsqueeze(0).repeat(batch_size, 1).to(device)  # (B, src_len)
 
         # Mix token embeddings and positional embeddings
-        src = self.dropout((self.tok_embedding(src) * self.scale) + self.pos_embedding(pos))  # (B, src_len, hid_dim)
+        src = self.dropout((self.tok_embedding(src) * self.scale) + self.pos_embedding(src))  # (B, src_len, d_model)
 
         for layer in self.layers:
-            src = layer(src, src_mask)  # (B, src_len, hid_dim)
+            src = layer(src, src_mask)  # (B, src_len, d_model)
 
         return src
 
 
 class EncoderLayer(nn.Module):
-    def __init__(self, hid_dim, n_heads, pf_dim, dropout):
+    def __init__(self, d_model, n_heads, dff, dropout):
         super().__init__()
 
-        self.self_attn_layer_norm = nn.LayerNorm(hid_dim)
-        self.ff_layer_norm = nn.LayerNorm(hid_dim)
+        self.self_attn_layer_norm = nn.LayerNorm(d_model)
+        self.ff_layer_norm = nn.LayerNorm(d_model)
 
-        self.self_attention = MultiHeadAttentionLayer(hid_dim, n_heads, dropout)
-        self.positionwise_feedforward = PositionwiseFeedforwardLayer(hid_dim, pf_dim, dropout)
+        self.self_attention = MultiHeadAttentionLayer(d_model, n_heads, dropout)
+        self.positionwise_feedforward = PositionwiseFeedforwardLayer(d_model, dff, dropout)
 
         self.dropout = nn.Dropout(dropout)
 
@@ -73,29 +92,28 @@ class EncoderLayer(nn.Module):
 
 
 class MultiHeadAttentionLayer(nn.Module):
-    def __init__(self, hid_dim, n_heads, dropout):
+    def __init__(self, d_model, n_heads, dropout):
         super().__init__()
-        assert hid_dim % n_heads == 0
+        assert d_model % n_heads == 0
 
-        self.hid_dim = hid_dim
+        self.d_model = d_model
         self.n_heads = n_heads
-        self.head_dim = hid_dim // n_heads
+        self.head_dim = d_model // n_heads
 
-        self.fc_q = nn.Linear(hid_dim, hid_dim)
-        self.fc_k = nn.Linear(hid_dim, hid_dim)
-        self.fc_v = nn.Linear(hid_dim, hid_dim)
+        self.fc_q = nn.Linear(d_model, d_model)
+        self.fc_k = nn.Linear(d_model, d_model)
+        self.fc_v = nn.Linear(d_model, d_model)
 
-        self.fc_o = nn.Linear(hid_dim, hid_dim)
+        self.fc_o = nn.Linear(d_model, d_model)
 
         self.dropout = nn.Dropout(dropout)
-
-        self.scale = torch.nn.Parameter(torch.sqrt(torch.FloatTensor([self.head_dim])), requires_grad=False)
+        self.scale = math.sqrt(d_model)
 
     def forward(self, query, key, value, mask=None):
         batch_size = query.shape[0]
 
         # Self-attention (query = key = value = x)
-        Q = self.fc_q(query)  # (B, L, hid_dim) => (B, L, hid_dim)
+        Q = self.fc_q(query)  # (B, L, d_model) => (B, L, d_model)
         K = self.fc_k(key)
         V = self.fc_v(value)
 
@@ -111,7 +129,7 @@ class MultiHeadAttentionLayer(nn.Module):
 
         # Ignore pads
         if mask is not None:
-            energy = energy.masked_fill(mask == 0, -1e10)
+            energy = energy.masked_fill(mask == 0, -1e18)
 
         # Normalize attention
         attention = torch.softmax(energy, dim=-1)
@@ -121,19 +139,19 @@ class MultiHeadAttentionLayer(nn.Module):
 
         # Go back to the input size
         x = x.permute(0, 2, 1, 3).contiguous()  # (B, n_heads, len, head_dim) => (B, len, n_heads, head_dim)
-        x = x.view(batch_size, -1, self.hid_dim)  # (B, len, n_heads, head_dim) => (B, len, hid_dim)
+        x = x.view(batch_size, -1, self.d_model)  # (B, len, n_heads, head_dim) => (B, len, d_model)
 
         # Linear
-        x = self.fc_o(x)  # (..., hid_dim) => (..., hid_dim)
+        x = self.fc_o(x)  # (..., d_model) => (..., d_model)
         return x, attention
 
 
 class PositionwiseFeedforwardLayer(nn.Module):
-    def __init__(self, hid_dim, pf_dim, dropout):
+    def __init__(self, d_model, pf_dim, dropout):
         super().__init__()
 
-        self.fc_1 = nn.Linear(hid_dim, pf_dim)
-        self.fc_2 = nn.Linear(pf_dim, hid_dim)
+        self.fc_1 = nn.Linear(d_model, pf_dim)
+        self.fc_2 = nn.Linear(pf_dim, d_model)
 
         self.dropout = nn.Dropout(dropout)
 
@@ -144,34 +162,34 @@ class PositionwiseFeedforwardLayer(nn.Module):
 
 
 class Decoder(nn.Module):
-    def __init__(self, output_dim, hid_dim, n_layers, n_heads, pf_dim, dropout, max_length):
+    def __init__(self, output_dim, d_model, n_layers, n_heads, dff, dropout, max_length):
         super().__init__()
 
         self.max_length = max_length
 
-        self.tok_embedding = nn.Embedding(output_dim, hid_dim)
-        self.pos_embedding = nn.Embedding(max_length, hid_dim)  # This limits decoding length at testing
+        self.tok_embedding = nn.Embedding(output_dim, d_model)
+        self.pos_embedding = PositionalEncoding(d_model, max_length)  # Pos => emb_pos
+        # self.pos_embedding = nn.Embedding(max_length, d_model)  # This limits decoding length at testing
 
-        self.layers = nn.ModuleList([DecoderLayer(hid_dim, n_heads, pf_dim, dropout)
+        self.layers = nn.ModuleList([DecoderLayer(d_model, n_heads, dff, dropout)
                                      for _ in range(n_layers)])
 
-        self.fc_out = nn.Linear(hid_dim, output_dim)
+        self.fc_out = nn.Linear(d_model, output_dim)
 
         self.dropout = nn.Dropout(dropout)
-
-        self.scale = torch.nn.Parameter(torch.sqrt(torch.FloatTensor([hid_dim])), requires_grad=False)
+        self.scale = math.sqrt(d_model)
 
     def forward(self, trg, enc_src, trg_mask, src_mask):
         batch_size = trg.shape[0]
         trg_len = trg.shape[1]
         assert trg_len <= self.max_length
 
-        # Initial positions: 0,1,2,... for each sample
-        device = trg.device
-        pos = torch.arange(0, trg_len).unsqueeze(0).repeat(batch_size, 1).to(device)
+        # # Initial positions: 0,1,2,... for each sample
+        # device = trg.device
+        # pos = torch.arange(0, trg_len).unsqueeze(0).repeat(batch_size, 1).to(device)
 
         # Mix token embeddings and positional embeddings
-        trg = self.dropout((self.tok_embedding(trg) * self.scale) + self.pos_embedding(pos))
+        trg = self.dropout((self.tok_embedding(trg) * self.scale) + self.pos_embedding(trg))
 
         attention = None
         for layer in self.layers:
@@ -182,17 +200,17 @@ class Decoder(nn.Module):
 
 
 class DecoderLayer(nn.Module):
-    def __init__(self, hid_dim, n_heads, pf_dim, dropout):
+    def __init__(self, d_model, n_heads, dff, dropout):
         super().__init__()
 
-        self.self_attn_layer_norm = nn.LayerNorm(hid_dim)
-        self.enc_attn_layer_norm = nn.LayerNorm(hid_dim)
-        self.ff_layer_norm = nn.LayerNorm(hid_dim)
+        self.self_attn_layer_norm = nn.LayerNorm(d_model)
+        self.enc_attn_layer_norm = nn.LayerNorm(d_model)
+        self.ff_layer_norm = nn.LayerNorm(d_model)
 
-        self.self_attention = MultiHeadAttentionLayer(hid_dim, n_heads, dropout)
-        self.encoder_attention = MultiHeadAttentionLayer(hid_dim, n_heads, dropout)
+        self.self_attention = MultiHeadAttentionLayer(d_model, n_heads, dropout)
+        self.encoder_attention = MultiHeadAttentionLayer(d_model, n_heads, dropout)
 
-        self.positionwise_feedforward = PositionwiseFeedforwardLayer(hid_dim,  pf_dim, dropout)
+        self.positionwise_feedforward = PositionwiseFeedforwardLayer(d_model, dff, dropout)
 
         self.dropout = nn.Dropout(dropout)
 
@@ -232,7 +250,7 @@ class Seq2Seq(nn.Module):
 
         # Diagonal matrix to hide next token (LxL)
         trg_len = src_mask.shape[1]  # target (max) length
-        trg_tri_mask = torch.tril(torch.ones((trg_len, trg_len))).bool()
+        trg_tri_mask = torch.tril(torch.ones((trg_len, trg_len), device=src_mask.device)).bool()
 
         # Add pads to the diagonal matrix (LxL)&Pad
         # This is automatically broadcasted (B, 1, 1, L) & (L, L) => (B, 1, L, L)

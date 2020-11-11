@@ -7,4 +7,5 @@ Backup for my ML tests
 ```
 python -m pip install --upgrade pip
 pip install -U --use-feature=2020-resolver -r requirements.txt 
+tensorboard --logdir ./lightning_logs
 ```

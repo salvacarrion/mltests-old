@@ -1,5 +1,6 @@
 import os
 from collections import defaultdict
+import math
 
 import torch
 from torch import nn
@@ -131,13 +132,19 @@ class LitTokenizer:
 class LitTransfomer(pl.LightningModule):
 
     def __init__(self, tokenizer,
-                 hid_dim=256,
+                 d_model=512,
                  enc_layers=3, dec_layers=3,
                  enc_heads=8, dec_heads=8,
-                 enc_pf_dim=512, dec_pf_dim=512,
+                 enc_dff_dim=2048, dec_dff_dim=2048,
                  enc_dropout=0.1, dec_dropout=0.1,
-                 max_src_len=100, max_trg_len=100):
+                 max_src_len=2000, max_trg_len=2000,
+                 batch_size=None,
+                 learning_rate=10e-3):
         super().__init__()
+
+        # Some variables
+        self.batch_size = batch_size
+        self.learning_rate = learning_rate
 
         # Set tokenizer
         self.tokenizer = tokenizer
@@ -147,9 +154,12 @@ class LitTransfomer(pl.LightningModule):
         output_dim = self.tokenizer.trg_tokenizer.get_vocab_size()
 
         # Model
-        self.enc = tfmr.Encoder(input_dim, hid_dim, enc_layers, enc_heads, enc_pf_dim, enc_dropout, max_src_len)
-        self.dec = tfmr.Decoder(output_dim, hid_dim, dec_layers, dec_heads, dec_pf_dim, dec_dropout, max_trg_len)
+        self.enc = tfmr.Encoder(input_dim, d_model, enc_layers, enc_heads, enc_dff_dim, enc_dropout, max_src_len)
+        self.dec = tfmr.Decoder(output_dim, d_model, dec_layers, dec_heads, dec_dff_dim, dec_dropout, max_trg_len)
         self.model = tfmr.Seq2Seq(self.enc, self.dec)
+
+        # Initialize weights
+        self.model.apply(tfmr.init_weights)
 
         # Set loss (ignore when the target token is <pad>)
         TRG_PAD_IDX = self.tokenizer.trg_tokenizer.token_to_id(self.tokenizer.PAD_WORD)
@@ -159,7 +169,7 @@ class LitTransfomer(pl.LightningModule):
         # Inference
         return x
 
-    def training_step(self, batch, batch_idx):
+    def batch_step(self, batch, batch_idx):
         src, src_mask, trg, trg_mask = batch
         # trg_lengths = trg_mask.sum(dim=1) + 1  # Not needed
 
@@ -180,13 +190,29 @@ class LitTransfomer(pl.LightningModule):
         trg = trg[:, 1:].contiguous().view(-1)  # Remove <sos> and reshape to vector (B*L)
         ##############################
 
-        # Compute loss and backward => CE(I(N, C), T(N))
-        loss = self.criterion(output, trg)
+        # Compute loss and metrics
+        losses = {'loss': self.criterion(output, trg)}
+        metrics = {'ppl': math.exp(losses['loss'])}
+        return losses, metrics
+
+    def training_step(self, batch, batch_idx):
+        # Run one mini-batch
+        losses, metrics = self.batch_step(batch, batch_idx)
 
         # Logging to TensorBoard by default
-        self.log('train_loss', loss)
-        return loss
+        self.log('train_loss', losses['loss'])
+        self.log('train_ppl', metrics['ppl'])
+        return losses['loss']
+
+    def validation_step(self, batch, batch_idx):
+        # Run one mini-batch
+        losses, metrics = self.batch_step(batch, batch_idx)
+
+        # Logging to TensorBoard by default
+        self.log('val_loss', losses['loss'])
+        self.log('val_ppl', metrics['ppl'])
+        return losses['loss']
 
     def configure_optimizers(self):
-        optimizer = torch.optim.Adam(self.parameters(), lr=1e-3)
+        optimizer = torch.optim.Adam(self.parameters(), lr=self.learning_rate)
         return optimizer

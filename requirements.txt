@@ -37,6 +37,7 @@ pytorch-lightning
 tensorflow  # Includes Tensorboard
 keras
 trax
+tensorboard-plugin-profile
 
 # HuggingFace
 datasets
