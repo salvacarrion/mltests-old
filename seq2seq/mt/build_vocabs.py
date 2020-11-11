@@ -16,6 +16,6 @@ tokenizer.train_vocabs(src_files, trg_files)
 print("Training done!")
 
 # Save vocabs
-folder = f"{DATASET_PATH}/vocab"
-tokenizer.save_vocabs(folder, src_name=SRC_LANG, trg_name=TRG_LANG)
-print("Vocabs saved!")
+# folder = f"{DATASET_PATH}/vocab"
+# tokenizer.save_vocabs(folder, src_name=SRC_LANG, trg_name=TRG_LANG)
+# print("Vocabs saved!")

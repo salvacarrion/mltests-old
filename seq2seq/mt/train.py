@@ -36,10 +36,10 @@ def main(args):
     trg_vocab_file = f"{DATASET_PATH}/vocab/{TRG_LANG}-vocab.txt"
     tokenizer.load_vocabs(src_vocab_file, trg_vocab_file)
 
+
     # Get dataset (train/val)
     dataset = load_dataset('csv', data_files={'train': [f"{DATASET_PATH}/preprocessed/train.csv"],
                                               'validation': [f"{DATASET_PATH}/preprocessed/dev.csv"]})
-
 
     # Tokenize
     def encode(examples):

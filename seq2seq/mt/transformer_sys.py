@@ -11,7 +11,7 @@ from torch.utils.data import DataLoader
 import pytorch_lightning as pl
 from torch.utils.data import random_split
 
-from tokenizers import Tokenizer, normalizers, pre_tokenizers
+from tokenizers import Tokenizer, normalizers, pre_tokenizers, decoders
 from tokenizers.models import WordPiece
 from tokenizers.normalizers import NFD, Lowercase, Strip, StripAccents
 from tokenizers.pre_tokenizers import Whitespace
@@ -24,17 +24,21 @@ from seq2seq.mt import transformer as tfmr
 class LitTokenizer:
     def __init__(self, padding=False, truncation=False, max_length=None):
         super().__init__()
-        self.SOS_WORD = '<sos>'
-        self.EOS_WORD = '<eos>'
-        self.PAD_WORD = '<pad>'
-        self.UNK_WORD = '<unk>'
-        self.MASK_WORD = '<mask>'
-        self.special_tokens = (self.SOS_WORD, self.EOS_WORD, self.PAD_WORD, self.UNK_WORD, self.MASK_WORD)
+        self.SOS_WORD = '[SOS]'
+        self.EOS_WORD = '[EOS]'
+        self.PAD_WORD = '[PAD]'
+        self.UNK_WORD = '[UNK]'
+        self.MASK_WORD = '[MASK]'
+        self.special_tokens = [self.SOS_WORD, self.EOS_WORD, self.PAD_WORD, self.UNK_WORD, self.MASK_WORD]
 
         # Define tokenizers
         self.src_tokenizer, self.trg_tokenizer = self.configure_tokenizers(padding, truncation, max_length)
 
+
     def configure_tokenizers(self, padding, truncation, max_length):
+        unk_idx = self.special_tokens.index(self.UNK_WORD)
+        pad_idx = self.special_tokens.index(self.PAD_WORD)
+
         # Define template (common)
         basic_template = TemplateProcessing(
             single=f"{self.SOS_WORD} $A {self.EOS_WORD}",
@@ -55,22 +59,26 @@ class LitTokenizer:
             raise ValueError("Unknown padding type")
 
         # SRC tokenizer
-        src_tokenizer = Tokenizer(WordPiece())
+        src_tokenizer = Tokenizer(WordPiece())  # unk_token=... not working
+        src_tokenizer.add_special_tokens(self.special_tokens)
+        src_tokenizer.decoder = decoders.WordPiece()
         src_tokenizer.normalizer = normalizers.Sequence([NFD(), Lowercase(), Strip(), StripAccents()])  # StripAccents requires NFD
         src_tokenizer.pre_tokenizer = pre_tokenizers.Sequence([Whitespace()])
         src_tokenizer.post_processor = basic_template
         if padding:
-            src_tokenizer.enable_padding(pad_id=self.special_tokens.index(self.PAD_WORD), pad_token=self.PAD_WORD, length=pad_length)
+            src_tokenizer.enable_padding(pad_id=pad_idx, pad_token=self.PAD_WORD, length=pad_length)
         if truncation:
             src_tokenizer.enable_truncation(max_length, stride=0, strategy='longest_first')
 
         # TRG tokenizer
-        trg_tokenizer = Tokenizer(WordPiece())
+        trg_tokenizer = Tokenizer(WordPiece(unk_token=self.UNK_WORD))
+        trg_tokenizer.add_special_tokens(self.special_tokens)
+        trg_tokenizer.decoder = decoders.WordPiece()
         trg_tokenizer.normalizer = normalizers.Sequence([NFD(), Lowercase(), Strip()])
         trg_tokenizer.pre_tokenizer = pre_tokenizers.Sequence([Whitespace()])
         trg_tokenizer.post_processor = basic_template
         if padding:
-            trg_tokenizer.enable_padding(pad_id=self.special_tokens.index(self.PAD_WORD), pad_token=self.PAD_WORD, length=pad_length)
+            trg_tokenizer.enable_padding(pad_id=pad_idx, pad_token=self.PAD_WORD, length=pad_length)
         if truncation:
             trg_tokenizer.enable_truncation(max_length, stride=0, strategy='longest_first')
 
@@ -84,8 +92,8 @@ class LitTokenizer:
                      src_vocab_size=30000, trg_vocab_size=30000,
                      src_min_frequency=3, trg_min_frequency=3):
         # Define trainers
-        src_trainer = WordPieceTrainer(vocab_size=src_vocab_size, min_frequency=src_min_frequency, special_tokens=list(self.special_tokens))
-        trg_trainer = WordPieceTrainer(vocab_size=trg_vocab_size, min_frequency=trg_min_frequency, special_tokens=list(self.special_tokens))
+        src_trainer = WordPieceTrainer(vocab_size=src_vocab_size, min_frequency=src_min_frequency, special_tokens=self.special_tokens)
+        trg_trainer = WordPieceTrainer(vocab_size=trg_vocab_size, min_frequency=trg_min_frequency, special_tokens=self.special_tokens)
 
         # Train tokenizers
         self.src_tokenizer.train(src_trainer, src_files)
@@ -133,7 +141,7 @@ class LitTransfomer(pl.LightningModule):
 
     def __init__(self, tokenizer,
                  d_model=512,
-                 enc_layers=3, dec_layers=3,
+                 enc_layers=2, dec_layers=2,
                  enc_heads=8, dec_heads=8,
                  enc_dff_dim=2048, dec_dff_dim=2048,
                  enc_dropout=0.1, dec_dropout=0.1,
