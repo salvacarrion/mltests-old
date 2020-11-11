@@ -9,6 +9,8 @@ lightning_logs/
 *.yaml
 *.zip
 *.gz
+*.pt
+*.ckpt
 
 # Mac OS
 .DS_Store

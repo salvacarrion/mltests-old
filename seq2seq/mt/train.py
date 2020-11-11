@@ -16,6 +16,7 @@ from pytorch_lightning import Trainer, seed_everything
 
 from seq2seq.mt.transformer_sys import LitTokenizer, LitTransfomer
 
+#os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 def main(args):
     # Constants
@@ -27,8 +28,8 @@ def main(args):
     SRC_MAX_LENGTH = 150
     TRG_MAX_LENGTH = 150
 
-    BATCH_SIZE = 32
-    NUM_WORKERS = 0  # Problems with tokenizers
+    BATCH_SIZE = 64
+    NUM_WORKERS = 12  # Problems with tokenizers
     PIN_MEMORY = True
     seed_everything(42)
 
@@ -96,19 +97,8 @@ def main(args):
     model = LitTransfomer(tokenizer=tokenizer, batch_size=BATCH_SIZE)
 
     # most basic trainer, uses good defaults (auto-tensorboard, checkpoints, logs, and more)
-    # trainer = Trainer.from_argparse_args(args)
-    trainer = Trainer(
-        deterministic=True,
-      # # gpus=2, num_nodes=2, accelerator='ddp',
-      # auto_scale_batch_size='binsearch',
-      gpus=-1, auto_select_gpus=False,
-      auto_lr_find=True,
-      log_gpu_memory='min_max',
-      max_epochs=1000,
-      # precision=16,
-      profiler="simple",
-    )
-    trainer.tune(model, train_loader, val_loader)
+    trainer = Trainer.from_argparse_args(args)
+    #trainer.tune(model, train_loader, val_loader)
     trainer.fit(model, train_loader, val_loader)
 
 
