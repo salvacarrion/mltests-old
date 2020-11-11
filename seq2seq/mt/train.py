@@ -21,11 +21,16 @@ def main(args):
     # Constants
     DATASET_PATH = f"../.data/miguel"
     SRC_LANG, TRG_LANG = ("en", "es")
+
+    SRC_MIN_LENGTH = 1
+    TRG_MIN_LENGTH = 1
+    SRC_MAX_LENGTH = 150
+    TRG_MAX_LENGTH = 150
+
     BATCH_SIZE = 32
     NUM_WORKERS = 0  # Problems with tokenizers
     PIN_MEMORY = True
     seed_everything(42)
-
 
     # Define Tokenizer
     # Do not use padding here. Datasets are preprocessed before batching
@@ -35,7 +40,6 @@ def main(args):
     src_vocab_file = f"{DATASET_PATH}/vocab/{SRC_LANG}-vocab.txt"
     trg_vocab_file = f"{DATASET_PATH}/vocab/{TRG_LANG}-vocab.txt"
     tokenizer.load_vocabs(src_vocab_file, trg_vocab_file)
-
 
     # Get dataset (train/val)
     dataset = load_dataset('csv', data_files={'train': [f"{DATASET_PATH}/preprocessed/train.csv"],
@@ -58,7 +62,6 @@ def main(args):
         new_examples = {'src': src_tokenized, 'trg': trg_tokenized}
         return new_examples
 
-
     def collate_fn(examples):
         # Decompose examples
         _src = [x['src'] for x in examples]
@@ -73,10 +76,13 @@ def main(args):
                         torch.stack(trg['ids']), torch.stack(trg['attention_mask']))
         return new_examples
 
-
     # Pre-process datasets (lazy)
     train_dataset = dataset['train'].map(encode, batched=True)
     val_dataset = dataset['validation'].map(encode, batched=True)
+
+    # Filter entries with a length greater than max_length
+    train_dataset = train_dataset.filter(lambda example: SRC_MIN_LENGTH <= len(example['src']['ids']) <= SRC_MAX_LENGTH and TRG_MIN_LENGTH <= len(example['trg']['ids']) <= TRG_MAX_LENGTH)
+    val_dataset = val_dataset.filter(lambda example: SRC_MIN_LENGTH <= len(example['src']['ids']) <= SRC_MAX_LENGTH and TRG_MIN_LENGTH <= len(example['trg']['ids']) <= TRG_MAX_LENGTH)
 
     # Dataset formats
     train_dataset.set_format(type='torch', columns=['src', 'trg'])
