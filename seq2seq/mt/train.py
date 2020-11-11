@@ -90,11 +90,11 @@ def main(args):
     val_dataset.set_format(type='torch', columns=['src', 'trg'])
 
     # Dataset to Pytorch DataLoader
-    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=BATCH_SIZE, collate_fn=collate_fn, num_workers=NUM_WORKERS, pin_memory=PIN_MEMORY)
-    val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=BATCH_SIZE, collate_fn=collate_fn, num_workers=NUM_WORKERS, pin_memory=PIN_MEMORY)
+    train_loader = torch.utils.data.DataLoader(train_dataset, collate_fn=collate_fn)
+    val_loader = torch.utils.data.DataLoader(val_dataset, collate_fn=collate_fn)
 
     # init model
-    model = LitTransfomer(tokenizer=tokenizer, batch_size=BATCH_SIZE)
+    model = LitTransfomer(tokenizer=tokenizer)
 
     # most basic trainer, uses good defaults (auto-tensorboard, checkpoints, logs, and more)
     trainer = Trainer.from_argparse_args(args)
