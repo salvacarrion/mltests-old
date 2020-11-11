@@ -1,0 +1,8 @@
+deterministic = True,
+max_epochs = 1000,
+gpus = 2,
+accelerator = 'ddp',
+log_gpu_memory = 'min_max',
+profiler = "simple",
+auto_lr_find = True,
+#auto_scale_batch_size = 'binsearch',
