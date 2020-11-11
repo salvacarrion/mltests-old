@@ -16,7 +16,7 @@ from pytorch_lightning import Trainer, seed_everything
 
 from seq2seq.mt.transformer_sys import LitTokenizer, LitTransfomer
 
-#os.environ["TOKENIZERS_PARALLELISM"] = "false"
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 def main(args):
     # Constants
@@ -28,7 +28,7 @@ def main(args):
     SRC_MAX_LENGTH = 150
     TRG_MAX_LENGTH = 150
 
-    BATCH_SIZE = 64
+    BATCH_SIZE = 128
     NUM_WORKERS = 12  # Problems with tokenizers
     PIN_MEMORY = True
     seed_everything(42)
@@ -73,8 +73,8 @@ def main(args):
         trg = tokenizer.pad(_trg, keys=['ids', 'attention_mask'])
 
         # Convert list to PyTorch tensor
-        new_examples = (torch.stack(src['ids']), torch.stack(src['attention_mask']),
-                        torch.stack(trg['ids']), torch.stack(trg['attention_mask']))
+        new_examples = [torch.stack(src['ids']), torch.stack(src['attention_mask']),
+                        torch.stack(trg['ids']), torch.stack(trg['attention_mask'])]
         return new_examples
 
     # Pre-process datasets (lazy)
@@ -90,15 +90,15 @@ def main(args):
     val_dataset.set_format(type='torch', columns=['src', 'trg'])
 
     # Dataset to Pytorch DataLoader
-    train_loader = torch.utils.data.DataLoader(train_dataset, collate_fn=collate_fn)
-    val_loader = torch.utils.data.DataLoader(val_dataset, collate_fn=collate_fn)
+    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=BATCH_SIZE, num_workers=NUM_WORKERS, collate_fn=collate_fn, shuffle=True, pin_memory=True)
+    val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=BATCH_SIZE, num_workers=NUM_WORKERS, collate_fn=collate_fn, shuffle=True, pin_memory=True)
 
     # init model
     model = LitTransfomer(tokenizer=tokenizer)
 
     # most basic trainer, uses good defaults (auto-tensorboard, checkpoints, logs, and more)
     trainer = Trainer.from_argparse_args(args)
-    #trainer.tune(model, train_loader, val_loader)
+    trainer.tune(model, train_loader, val_loader)
     trainer.fit(model, train_loader, val_loader)
 
 

@@ -149,8 +149,8 @@ class LitTransfomer(pl.LightningModule):
         super().__init__()
 
         # Some variables
-        self.batch_size = None
-        self.learning_rate = None
+        self.batch_size = 32
+        self.learning_rate = 10e-3
 
         # Set tokenizer
         self.tokenizer = tokenizer
