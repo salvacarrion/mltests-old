@@ -5,6 +5,8 @@
 .data/
 checkpoints/
 runs*/
+lightning_logs/
+*.yaml
 
 # Mac OS
 .DS_Store

@@ -37,7 +37,7 @@ def main(args):
     tokenizer.load_vocabs(src_vocab_file, trg_vocab_file)
 
     # Get dataset (train/val)
-    dataset = load_dataset('csv', data_files={'train': [f"{DATASET_PATH}/preprocessed/test.csv"],
+    dataset = load_dataset('csv', data_files={'train': [f"{DATASET_PATH}/preprocessed/train.csv"],
                                               'validation': [f"{DATASET_PATH}/preprocessed/dev.csv"]})
 
 
@@ -97,11 +97,10 @@ def main(args):
       # auto_scale_batch_size='binsearch',
       gpus=-1, auto_select_gpus=False,
       auto_lr_find=True,
-      log_gpu_memory='all',
+      log_gpu_memory='min_max',
       max_epochs=1000,
       # precision=16,
       profiler="simple",
-      flush_logs_every_n_steps=100,
     )
     trainer.tune(model, train_loader, val_loader)
     trainer.fit(model, train_loader, val_loader)
