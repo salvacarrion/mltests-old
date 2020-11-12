@@ -1,0 +1,36 @@
+2020-11-12 00:55:01.622420: W tensorflow/stream_executor/platform/default/dso_loader.cc:59] Could not load dynamic library 'libcudart.so.10.1'; dlerror: libcudart.so.10.1: cannot open shared object file: No such file or directory; LD_LIBRARY_PATH: /usr/local/cuda-10.2/lib64:
+2020-11-12 00:55:01.622457: I tensorflow/stream_executor/cuda/cudart_stub.cc:29] Ignore above cudart dlerror if you do not have a GPU set up on your machine.
+Traceback (most recent call last):
+  File "train.py", line 110, in <module>
+    main(args)
+  File "train.py", line 47, in main
+    'validation': [f"{DATASET_PATH}/preprocessed/dev.csv"]})
+  File "/home/scarrion/anaconda3/lib/python3.7/site-packages/datasets/load.py", line 590, in load_dataset
+    path, script_version=script_version, download_config=download_config, download_mode=download_mode, dataset=True
+  File "/home/scarrion/anaconda3/lib/python3.7/site-packages/datasets/load.py", line 264, in prepare_module
+    head_hf_s3(path, filename=name, dataset=dataset)
+  File "/home/scarrion/anaconda3/lib/python3.7/site-packages/datasets/utils/file_utils.py", line 200, in head_hf_s3
+    return requests.head(hf_bucket_url(identifier=identifier, filename=filename, use_cdn=use_cdn, dataset=dataset))
+  File "/home/scarrion/anaconda3/lib/python3.7/site-packages/requests/api.py", line 104, in head
+    return request('head', url, **kwargs)
+  File "/home/scarrion/anaconda3/lib/python3.7/site-packages/requests/api.py", line 61, in request
+    return session.request(method=method, url=url, **kwargs)
+  File "/home/scarrion/anaconda3/lib/python3.7/site-packages/requests/sessions.py", line 530, in request
+    resp = self.send(prep, **send_kwargs)
+  File "/home/scarrion/anaconda3/lib/python3.7/site-packages/requests/sessions.py", line 643, in send
+    r = adapter.send(request, **kwargs)
+  File "/home/scarrion/anaconda3/lib/python3.7/site-packages/requests/adapters.py", line 449, in send
+    timeout=timeout
+  File "/home/scarrion/anaconda3/lib/python3.7/site-packages/urllib3/connectionpool.py", line 600, in urlopen
+    chunked=chunked)
+  File "/home/scarrion/anaconda3/lib/python3.7/site-packages/urllib3/connectionpool.py", line 343, in _make_request
+    self._validate_conn(conn)
+  File "/home/scarrion/anaconda3/lib/python3.7/site-packages/urllib3/connectionpool.py", line 839, in _validate_conn
+    conn.connect()
+  File "/home/scarrion/anaconda3/lib/python3.7/site-packages/urllib3/connection.py", line 301, in connect
+    conn = self._new_conn()
+  File "/home/scarrion/anaconda3/lib/python3.7/site-packages/urllib3/connection.py", line 159, in _new_conn
+    (self._dns_host, self.port), self.timeout, **extra_kw)
+  File "/home/scarrion/anaconda3/lib/python3.7/site-packages/urllib3/util/connection.py", line 70, in create_connection
+    sock.connect(sa)
+KeyboardInterrupt
