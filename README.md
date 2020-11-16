@@ -2,6 +2,41 @@
 
 Backup for my ML tests
 
+### Pretty stuff
+
+**Transfomer Attention (`beam_width=1; head=5`):**
+
+![Attention](seq2seq/transformers/images/attn.png)
+
+**Positional encoding (static):**
+
+![Static encoding](seq2seq/transformers/images/pos_enc.png)
+
+
+### Good to know stuff
+
+**Toy model:**
+
+We can we up to 2% extra in BLEU by using a wider beam. Not much difference from 5 and on.
+
+```
+# Beam 1
+2020-11-16 11:43:29 | INFO | fairseq_cli.generate | NOTE: hypothesis and token scores are output in base 2
+2020-11-16 11:43:29 | INFO | fairseq_cli.generate | Translated 3000 sentences (117786 tokens) in 8.4s (357.45 sentences/s, 14034.35 tokens/s)
+Generate test with beam=1: BLEU4 = 30.60, 58.9/37.7/25.9/19.0 (BP=0.945, ratio=0.947, syslen=114786, reflen=121236)
+
+# Beam 5
+2020-11-16 11:38:09 | INFO | fairseq_cli.generate | NOTE: hypothesis and token scores are output in base 2
+2020-11-16 11:38:09 | INFO | fairseq_cli.generate | Translated 3000 sentences (115935 tokens) in 14.8s (202.89 sentences/s, 7840.55 tokens/s)
+Generate test with beam=5: BLEU4 = 32.24, 61.2/40.1/28.2/21.0 (BP=0.929, ratio=0.932, syslen=112935, reflen=121236)
+
+# Beam 32
+2020-11-16 11:42:32 | INFO | fairseq_cli.generate | NOTE: hypothesis and token scores are output in base 2
+2020-11-16 11:42:32 | INFO | fairseq_cli.generate | Translated 3000 sentences (114388 tokens) in 72.3s (41.47 sentences/s, 1581.32 tokens/s)
+Generate test with beam=32: BLEU4 = 32.26, 61.6/40.7/28.7/21.5 (BP=0.915, ratio=0.919, syslen=111388, reflen=121236)
+```
+
+
 ### Useful commands
 
 ```
