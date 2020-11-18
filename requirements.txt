@@ -19,7 +19,6 @@ ipython
 cython
 tqdm
 dill
-regex
 requests
 
 # PyTorch
@@ -45,6 +44,8 @@ tokenizers
 transformers
 
 # NLP
+regex
+ftfy
 spacy
 nltk
 sacrebleu
