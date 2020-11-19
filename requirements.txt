@@ -44,14 +44,18 @@ tokenizers
 transformers
 
 # NLP
+# Preprocessing: https://www.topbots.com/nlp-text-pre-processing-methods/
 regex
-ftfy
 spacy
 nltk
 sacrebleu
 sacremoses
 subword_nmt
 fastBPE  # Sometimes raises error
+ftfy  # Fix Unicode
+textacy  # Preprocessing: Phones, URLs, hashtags,...
+beautifulsoup4 #Removing HTML metadata
+Scrapy  # Scraping
 
 
 
