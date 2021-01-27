@@ -2,52 +2,49 @@ import os
 import bioc
 import pandas as pd
 import tqdm
+import itertools
 
 # Vars
-SRC_LANG = "pt"
-TRG_LANG = "en"
 DATA_PATH = "/Users/salvacarrion/Documents/Programming/data/wmt16biomedical"
-DATASET = "scielo-gma/pt-en-gma-health"
-SAVEPATH = os.path.join(DATA_PATH, "preprocessed", DATASET)
 
-# Read files
-print("Reading files...")
-DIR1 = os.path.join(DATA_PATH, DATASET)
-filenames = [file for file in os.listdir(DIR1) if file.endswith(".txt")]
+dirs = ["es-en-gma-biological", "es-en-gma-health", "fr-en-gma-health", "pt-en-gma-biological", "pt-en-gma-health"]
+for cdir in dirs:
+    DATASET = f"scielo-gma/{cdir}"
+    SAVEPATH = os.path.join(DATA_PATH, "preprocessed", DATASET)
 
-# Process files
-print("Processing files...")
-data = {}
-for i, fname in tqdm.tqdm(enumerate(filenames), total=len(filenames)):
-    # Extract parts
-    values = fname.split("_")
+    SRC_LANG, TRG_LANG = cdir.split('-')[:2]
 
-    # Get parts
-    docid = values[0]
-    doctype = values[1].lower()
-    lang = SRC_LANG if SRC_LANG.lower() in values[2].lower() else TRG_LANG
+    # Read files
+    print("Reading files...")
+    DIR1 = os.path.join(DATA_PATH, DATASET)
+    filenames = [file for file in os.listdir(DIR1) if file.endswith(".crp")]
 
-    # Read file
-    with open(os.path.join(DIR1, fname), 'r') as f:
-        text = f.read()
+    # Process files
+    print("Processing files...")
+    data = []
+    for i, fname in tqdm.tqdm(enumerate(filenames), total=len(filenames)):
+        # Read file
+        with open(os.path.join(DIR1, fname), 'r') as f:
+            lines = f.readlines()
 
-    # Rows
-    key = f"{docid}-{doctype}"
-    if key not in data:
-        data[key] = {"docid": docid, "doctype": doctype}
-    data[key][lang] = text
+        # Process lines
+        for i in range(0, len(lines), 3):
+            cid, src, trg = lines[i:i+3]
+            docid, doctype = cid.split('_')
+            row = {"docid": docid.strip(), "doctype": doctype.lower().strip(), SRC_LANG: src.strip(), TRG_LANG: trg.strip()}
+            data.append(row)
 
-    # # For debugging
-    # if i+1 >= 100:
-    #     break
+        # # For debugging
+        # if i+1 >= 100:
+        #     break
 
-# Save data
-df = pd.DataFrame(data=data.values())
-df.to_csv(SAVEPATH + ".csv", index=False)
-print("File saved!")
+    # Save data
+    df = pd.DataFrame(data=data)
+    df.to_csv(SAVEPATH + ".csv", index=False)
+    print("File saved!")
 
-# Check values  (save first)
-assert min([len(v) for k, v in data.items()]) == 4
+    # Check values  (save first)
+    assert min([len(d) for d in data]) == 4
 
 print("Done!")
 
