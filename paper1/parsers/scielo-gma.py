@@ -37,7 +37,7 @@ for i, fname in tqdm.tqdm(enumerate(filenames), total=len(filenames)):
         data[key] = {"docid": docid, "doctype": doctype}
     data[key][lang] = text
 
-    # For debugging
+    # # For debugging
     # if i+1 >= 100:
     #     break
 
