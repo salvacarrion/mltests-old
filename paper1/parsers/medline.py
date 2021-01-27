@@ -7,7 +7,7 @@ import json
 # Vars
 SRC_LANG = "en"
 TRG_LANG = "pt"
-DATA_PATH = "/Users/salvacarrion/Documents/Programming/data/wmt16biomedical"
+DATA_PATH = "/Users/salvacarrion/Documents/Programming/datasets/wmt16biomedical"
 DATASET = f"medline/pubmed_{SRC_LANG}_{TRG_LANG}"
 SAVEPATH = os.path.join(DATA_PATH, "preprocessed", DATASET)
 

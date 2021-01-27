@@ -5,7 +5,7 @@ import tqdm
 import json
 
 # Vars
-DATA_PATH = "/Users/salvacarrion/Documents/Programming/data/wmt16biomedical"
+DATA_PATH = "/Users/salvacarrion/Documents/Programming/datasets/wmt16biomedical"
 DATASET = "scielo/pt-en-training-health"
 SAVEPATH = os.path.join(DATA_PATH, "preprocessed", DATASET)
 

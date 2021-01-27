@@ -5,7 +5,7 @@ import tqdm
 import itertools
 
 # Vars
-DATA_PATH = "/Users/salvacarrion/Documents/Programming/data/wmt16biomedical"
+DATA_PATH = "/Users/salvacarrion/Documents/Programming/datasets/wmt16biomedical"
 
 dirs = ["test-gma-en2es-biological", "test-gma-en2es-health", "test-gma-en2fr-health", "test-gma-en2pt-biological", "test-gma-en2pt-health",
         #"test-gma-es2en-biological", "test-gma-es2en-health", "test-gma-fr2en-health", "test-gma-pt2en-biological", "test-gma-pt2en-health"]
