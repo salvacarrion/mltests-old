@@ -22,7 +22,9 @@ fairseq-preprocess \
     --validpref $BASE_PATH/val.tok.bpe.$VOCAB_SIZE \
     --testpref $BASE_PATH/test.tok.bpe.$VOCAB_SIZE \
     --destdir $BASE_PATH/data-bin/$DATASET \
-    --workers	$NPROC
+    --workers	$NPROC \
+#    --srcdict	"/home/salvacarrion/Documents/Programming/Datasets/Scielo/fairseq/common_dict_es_en/dict.es.txt" \
+#    --trgdict	"/home/salvacarrion/Documents/Programming/Datasets/Scielo/fairseq/common_dict_es_en/dict.en.txt" \
 
 
 
