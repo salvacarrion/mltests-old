@@ -43,6 +43,7 @@ Generate test with beam=32: BLEU4 = 32.26, 61.6/40.7/28.7/21.5 (BP=0.915, ratio=
 python -m pip install --upgrade pip
 pip install -U --use-feature=2020-resolver -r requirements.txt 
 tensorboard --logdir ./lightning_logs
+nohup python 4_train.py > output.log &
 ```
 
 ## Fairseq
