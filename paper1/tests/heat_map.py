@@ -9,7 +9,7 @@ DOMAINS = ["health", "biological", "merged"]
 
 # Read data
 df = pd.read_csv("../data/overlapping.csv")
-col="iou"
+col="overlap"
 # Plot
 for src_lang, trg_lang in LANG_PAIRS:
     key = f"{src_lang}-{trg_lang}"
