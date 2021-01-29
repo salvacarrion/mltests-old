@@ -1,12 +1,8 @@
 import os
 import pandas as pd
-import tqdm
-import json
 import numpy as np
 from pathlib import Path
 from sklearn.model_selection import train_test_split
-
-from paper1 import utils
 
 # Vars
 SRC_LANG = "es"
