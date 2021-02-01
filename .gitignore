@@ -1,5 +1,6 @@
 # PyCharm files
 .idea/
+wandb/
 
 # Development
 .data/
