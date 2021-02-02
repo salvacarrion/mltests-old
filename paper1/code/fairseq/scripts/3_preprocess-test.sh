@@ -11,7 +11,7 @@ OUTPUT_PATH=$7
 NPROC=$(nproc)
 
 # Fast BPE: https://github.com/glample/fastBPE
-FASTBPE_PATH=/home/salvacarrion/Documents/packages/fastBPE/fast
+FASTBPE_PATH=/home/scarrion/packages/fastBPE/fast
 
 # Show constants
 echo "Preprocessing files for Fairseq... ****************"

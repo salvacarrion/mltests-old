@@ -30,7 +30,7 @@ mkdir -p $EVAL_PATH
 
 # Evaluate model
 fairseq-generate \
-    $BASE_PATH/data-bin/$DATASET \
+    $BASE_PATH/data-bin \
     --source-lang $SRC_LANG --target-lang $TRG_LANG \
     --path $MODEL_PATH \
     --tokenizer	moses \

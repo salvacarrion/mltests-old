@@ -20,7 +20,7 @@ def generate():
 
             # Paths
             model_path = os.path.abspath(os.path.join(BASE_PATH, f"../{dataset}/checkpoints/transformer/checkpoint_best.pt"))
-            testset_path = os.path.abspath(os.path.join(BASE_PATH, f"../{dataset}/data"))
+            testset_path = os.path.abspath(os.path.join(BASE_PATH, f"../{dataset}"))
             src_dict = os.path.abspath(os.path.join(BASE_PATH, f"../{dataset}/data-bin/{dataset}/dict.{SRC_LANG}.txt"))
             tgt_dict = os.path.abspath(os.path.join(BASE_PATH, f"../{dataset}/data-bin/{dataset}/dict.{TRG_LANG}.txt"))
 
@@ -34,7 +34,7 @@ def generate():
                 print(f"\t- Generating translations for: {domain2}...")
                 subprocess.call(['sh', './scripts/5_generate.sh', SRC_LANG, TRG_LANG, domain2, model_path, output_path, dataset])
 
-
+                return
 
 
 if __name__ == "__main__":
