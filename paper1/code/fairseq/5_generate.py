@@ -28,11 +28,11 @@ def generate():
                 # Preprocess files
                 print(f"\t- Pre-processing testset from: {domain2}...")
                 output_path = os.path.join(BASE_PATH, f"{SRC_LANG}-{TRG_LANG}", domain2)
-                # subprocess.call(['sh', './scripts/3_preprocess-test.sh', str(VOCAB_SIZE), SRC_LANG, TRG_LANG, src_dict, tgt_dict, testset_path, output_path])
+                subprocess.call(['sh', './scripts/3_preprocess-test.sh', str(VOCAB_SIZE), SRC_LANG, TRG_LANG, src_dict, tgt_dict, testset_path, output_path])
 
                 # Generate them
                 print(f"\t- Generating translations for: {domain2}...")
-                subprocess.call(['sh', './scripts/5_generate.sh', SRC_LANG, TRG_LANG, domain2, model_path, output_path])
+                subprocess.call(['sh', './scripts/5_generate.sh', SRC_LANG, TRG_LANG, domain2, model_path, output_path, dataset])
 
 
 

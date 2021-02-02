@@ -6,6 +6,7 @@ TRG_LANG=$2
 TESTSET=$3
 MODEL_PATH=$4
 BASE_PATH=$5
+DATASET=$6
 NPROC=$(nproc)
 EVAL_PATH="${BASE_PATH}/eval/${TESTSET}"
 BEAM=5
@@ -16,6 +17,7 @@ echo "Evaluating model... ****************"
 echo "- Source language: "$SRC_LANG
 echo "- Target language: "$TRG_LANG
 echo "- Testset: "$TESTSET
+echo "- Dataset: "$DATASET
 echo "- Beam: "$BEAM
 echo "- Scoring method: "$SCORING
 echo "- Model path: "$MODEL_PATH
@@ -28,7 +30,7 @@ mkdir -p $EVAL_PATH
 
 # Evaluate model
 fairseq-generate \
-    $BASE_PATH/data-bin/ \
+    $BASE_PATH/data-bin/$DATASET \
     --source-lang $SRC_LANG --target-lang $TRG_LANG \
     --path $MODEL_PATH \
     --tokenizer	moses \
@@ -41,5 +43,5 @@ fairseq-generate \
 #    --quiet	\
 
 
-fairseq-generate data-bin/ --source-lang es --target-lang en --path $MODEL_PATH --tokenizer moses --remove-bpe --beam 5 --scoring bleu
+#fairseq-generate data-bin/ --source-lang es --target-lang en --path checkpoints/transformer/checkpoint_best.pt --tokenizer moses --remove-bpe --beam 5 --scoring bleu
 
