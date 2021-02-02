@@ -4,66 +4,20 @@ import torch.nn.functional as F
 import numpy as np
 
 t = [
-    0, 0, 0, 0, 0, 0, 0,
-    0, 0, 2, 1, 0, 1, 0,
-    0, 2, 2, 1, 0, 0, 0,
-    0, 0, 0, 2, 0, 1, 0,
-    0, 0, 2, 1, 2, 0, 0,
-    0, 2, 2, 0, 2, 0, 0,
-    0, 0, 0, 0, 0, 0, 0,
-
-    0, 0, 0, 0, 0, 0, 0,
-    0, 2, 0, 2, 1, 2, 0,
-    0, 0, 2, 0, 1, 0, 0,
-    0, 1, 2, 0, 2, 2, 0,
-    0, 0, 0, 2, 1, 2, 0,
-    0, 1, 1, 1, 1, 1, 0,
-    0, 0, 0, 0, 0, 0, 0,
-
-    0, 0, 0, 0, 0, 0, 0,
-    0, 1, 1, 2, 0, 0, 0,
-    0, 2, 0, 2, 0, 0, 0,
-    0, 2, 1, 1, 2, 1, 0,
-    0, 0, 2, 0, 1, 2, 0,
-    0, 1, 1, 1, 0, 1, 0,
-    0, 0, 0, 0, 0, 0, 0,
+    0, 1, 0, 4, 5,
+    2, 3, 2, 1, 3,
+    4, 4, 0, 4, 3,
+    2, 5, 2, 6, 4,
+    1, 0, 0, 5, 7
 ]
 t = torch.tensor(t, dtype=torch.float)
-t = torch.reshape(t, (1, 3, 7, 7))
+t = torch.reshape(t, (1, 1, 5, 5))
 
-weights = [
-    -1, 1, 0,
-    1, -1, 0,
-    -1, -1, -1,
+kernel=[2, 2]
+weights = torch.ones([1, 1]+kernel, dtype=torch.float)
+biases = torch.zeros((1,), dtype=torch.float)
 
-    -1, 0, 0,
-    -1, 0, 1,
-    -1, -1, 0,
-
-    -1, 0, -1,
-    0, 0, 0,
-    1, 0, 0,
-
-    0, -1, 0,
-    -1, 0, 1,
-    1, 0, -1,
-
-    0, 0, -1,
-    1, 0, 0,
-    1, 0, -1,
-
-    1, 1, 0,
-    0, 0, 1,
-    0, 0, 0,
-]
-weights = torch.tensor(weights, dtype=torch.float)
-weights = torch.reshape(weights, (2, 3, 3, 3))
-
-biases = [1, 0]
-biases = torch.tensor(biases, dtype=torch.float)
-biases = torch.reshape(biases, (2,))
-
-conv1 = nn.Conv2d(in_channels=3, out_channels=2, kernel_size=(3, 3), stride=(2, 2), padding=(0, 0))
+conv1 = nn.Conv2d(in_channels=1, out_channels=1, kernel_size=tuple(kernel), stride=(2, 2), padding=(1,1))
 
 with torch.no_grad():
     conv1.weight = nn.Parameter(weights)
