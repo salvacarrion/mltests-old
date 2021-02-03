@@ -38,7 +38,9 @@ fairseq-train \
      --eval-bleu-detok moses \
      --eval-bleu-remove-bpe \
      --eval-bleu-print-samples \
-     --best-checkpoint-metric bleu --maximize-best-checkpoint-metric
+     --best-checkpoint-metric bleu --maximize-best-checkpoint-metric \
+     --patience	5
+
 
 #    --force-anneal 50 \
 #    --fp16 \
