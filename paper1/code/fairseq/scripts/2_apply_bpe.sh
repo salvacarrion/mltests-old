@@ -15,18 +15,17 @@ echo "- Source language: "$SRC_LANG
 echo "- Target language: "$TRG_LANG
 echo "- Base path: "$BASE_PATH
 
+# Create folder
+mkdir -p $BASE_PATH/bpe/
+
 # Learn codes (jointly)
-$FASTBPE_PATH learnbpe $VOCAB_SIZE $BASE_PATH/train.tok.clean.$SRC_LANG $BASE_PATH/train.tok.clean.$TRG_LANG > $BASE_PATH/codes
+$FASTBPE_PATH learnbpe $VOCAB_SIZE $BASE_PATH/clean/train.tok.clean.$SRC_LANG $BASE_PATH/clean/train.tok.clean.$TRG_LANG > $BASE_PATH/bpe/bpecodes
 
 # Apply BPE
-$FASTBPE_PATH applybpe $BASE_PATH/train.tok.bpe.$VOCAB_SIZE.$SRC_LANG $BASE_PATH/train.tok.clean.$SRC_LANG $BASE_PATH/codes
-$FASTBPE_PATH applybpe $BASE_PATH/val.tok.bpe.$VOCAB_SIZE.$SRC_LANG $BASE_PATH/val.tok.clean.$SRC_LANG $BASE_PATH/codes
-$FASTBPE_PATH applybpe $BASE_PATH/test.tok.bpe.$VOCAB_SIZE.$SRC_LANG $BASE_PATH/test.tok.clean.$SRC_LANG $BASE_PATH/codes
+$FASTBPE_PATH applybpe $BASE_PATH/bpe/train.tok.bpe.$VOCAB_SIZE.$SRC_LANG $BASE_PATH/clean/train.tok.clean.$SRC_LANG $BASE_PATH/bpe/bpecodes
+$FASTBPE_PATH applybpe $BASE_PATH/bpe/val.tok.bpe.$VOCAB_SIZE.$SRC_LANG $BASE_PATH/clean/val.tok.clean.$SRC_LANG $BASE_PATH/bpe/bpecodes
+$FASTBPE_PATH applybpe $BASE_PATH/bpe/test.tok.bpe.$VOCAB_SIZE.$SRC_LANG $BASE_PATH/clean/test.tok.clean.$SRC_LANG $BASE_PATH/bpe/bpecodes
 
-$FASTBPE_PATH applybpe $BASE_PATH/train.tok.bpe.$VOCAB_SIZE.$TRG_LANG $BASE_PATH/train.tok.clean.$TRG_LANG $BASE_PATH/codes
-$FASTBPE_PATH applybpe $BASE_PATH/val.tok.bpe.$VOCAB_SIZE.$TRG_LANG $BASE_PATH/val.tok.clean.$TRG_LANG $BASE_PATH/codes
-$FASTBPE_PATH applybpe $BASE_PATH/test.tok.bpe.$VOCAB_SIZE.$TRG_LANG $BASE_PATH/test.tok.clean.$TRG_LANG $BASE_PATH/codes
-
-# Get train vocabulary
-$FASTBPE_PATH getvocab $BASE_PATH/train.tok.bpe.$VOCAB_SIZE.$SRC_LANG > $BASE_PATH/vocab.tok.bpe.$VOCAB_SIZE.$SRC_LANG
-$FASTBPE_PATH getvocab $BASE_PATH/train.tok.bpe.$VOCAB_SIZE.$TRG_LANG > $BASE_PATH/vocab.tok.bpe.$VOCAB_SIZE.$TRG_LANG
+$FASTBPE_PATH applybpe $BASE_PATH/bpe/train.tok.bpe.$VOCAB_SIZE.$TRG_LANG $BASE_PATH/clean/train.tok.clean.$TRG_LANG $BASE_PATH/bpe/bpecodes
+$FASTBPE_PATH applybpe $BASE_PATH/bpe/val.tok.bpe.$VOCAB_SIZE.$TRG_LANG $BASE_PATH/clean/val.tok.clean.$TRG_LANG $BASE_PATH/bpe/bpecodes
+$FASTBPE_PATH applybpe $BASE_PATH/bpe/test.tok.bpe.$VOCAB_SIZE.$TRG_LANG $BASE_PATH/clean/test.tok.clean.$TRG_LANG $BASE_PATH/bpe/bpecodes

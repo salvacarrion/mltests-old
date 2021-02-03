@@ -7,7 +7,7 @@ TRG_LANG=$3
 DATASET=$4
 BASE_PATH=$5
 NPROC=$(nproc)
-
+cd
 # Show constants
 echo "Preprocessing files for Fairseq... ****************"
 echo "- Source language: "$SRC_LANG
@@ -18,14 +18,9 @@ echo "- Base path: "$BASE_PATH
 # Preprocess files
 fairseq-preprocess \
     --source-lang $SRC_LANG --target-lang $TRG_LANG \
-    --trainpref $BASE_PATH/train.tok.bpe.$VOCAB_SIZE \
-    --validpref $BASE_PATH/val.tok.bpe.$VOCAB_SIZE \
-    --testpref $BASE_PATH/test.tok.bpe.$VOCAB_SIZE \
-    --destdir $BASE_PATH/data-bin/$DATASET \
-    --workers	$NPROC \
-#    --srcdict	"/home/salvacarrion/Documents/Programming/Datasets/Scielo/fairseq/common_dict_es_en/dict.es.txt" \
-#    --trgdict	"/home/salvacarrion/Documents/Programming/Datasets/Scielo/fairseq/common_dict_es_en/dict.en.txt" \
-
-
-
+    --trainpref $BASE_PATH/bpe/train.tok.bpe.$VOCAB_SIZE \
+    --validpref $BASE_PATH/bpe/val.tok.bpe.$VOCAB_SIZE \
+    --testpref $BASE_PATH/bpe/test.tok.bpe.$VOCAB_SIZE \
+    --destdir $BASE_PATH/data-bin \
+    --workers	$(nproc)
 

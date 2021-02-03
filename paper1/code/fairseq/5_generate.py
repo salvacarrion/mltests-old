@@ -4,9 +4,13 @@ import subprocess
 if os.environ.get('MACHINE') == "HOME":
     print("Local")
     BASE_PATH = "/home/salvacarrion/Documents/Programming/Datasets/Scielo/fairseq/tests"
+    FAST_PATH = "/home/salvacarrion/Documents/packages/fastBPE/fast"
+    tmp="/data"
 else:
     print("Remote")
     BASE_PATH = "/home/scarrion/datasets/Scielo/fairseq/tests"
+    FAST_PATH = "/home/scarrion/packages/fastBPE/fast"
+    tmp=""
 
 VOCAB_SIZE = 32000
 DOMAINS = ["health", "biological", "merged"]
@@ -20,7 +24,7 @@ def generate():
 
             # Paths
             model_path = os.path.abspath(os.path.join(BASE_PATH, f"../{dataset}/checkpoints/transformer/checkpoint_best.pt"))
-            testset_path = os.path.abspath(os.path.join(BASE_PATH, f"../{dataset}"))
+            testset_path = os.path.abspath(os.path.join(BASE_PATH, f"../{dataset}{tmp}"))
             src_dict = os.path.abspath(os.path.join(BASE_PATH, f"../{dataset}/data-bin/{dataset}/dict.{SRC_LANG}.txt"))
             tgt_dict = os.path.abspath(os.path.join(BASE_PATH, f"../{dataset}/data-bin/{dataset}/dict.{TRG_LANG}.txt"))
 
@@ -28,7 +32,7 @@ def generate():
                 # Preprocess files
                 print(f"\t- Pre-processing testset from: {domain2}...")
                 output_path = os.path.join(BASE_PATH, f"{SRC_LANG}-{TRG_LANG}", domain2)
-                subprocess.call(['sh', './scripts/3_preprocess-test.sh', str(VOCAB_SIZE), SRC_LANG, TRG_LANG, src_dict, tgt_dict, testset_path, output_path])
+                subprocess.call(['sh', './scripts/3_preprocess-test.sh', str(VOCAB_SIZE), SRC_LANG, TRG_LANG, src_dict, tgt_dict, testset_path, output_path, FAST_PATH])
 
                 # Generate them
                 print(f"\t- Generating translations for: {domain2}...")
