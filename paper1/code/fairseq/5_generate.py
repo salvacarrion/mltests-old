@@ -3,14 +3,12 @@ import subprocess
 
 if os.environ.get('MACHINE') == "HOME":
     print("Local")
-    BASE_PATH = "/home/salvacarrion/Documents/Programming/Datasets/scielo/fairseq/tests"
+    BASE_PATH = "/home/salvacarrion/Documents/Programming/Datasets/scielo/fairseq"
     FAST_PATH = "/home/salvacarrion/Documents/packages/fastBPE/fast"
-    tmp = "/data"
 else:
     print("Remote")
-    BASE_PATH = "/home/scarrion/datasets/scielo/fairseq/tests"
+    BASE_PATH = "/home/scarrion/datasets/scielo/fairseq"
     FAST_PATH = "/home/scarrion/packages/fastBPE/fast"
-    tmp = ""
 
 VOCAB_SIZE = 32000
 DOMAINS = ["health", "biological", "merged"]
@@ -19,26 +17,33 @@ DOMAINS = ["health", "biological", "merged"]
 def generate():
     for SRC_LANG, TRG_LANG in [("es", "en"), ("pt", "en")]:
         for domain in DOMAINS:
-            dataset = f"scielo_{domain}_{SRC_LANG}_{TRG_LANG}"
-            print(f"Evaluating model from: {dataset}...")
+            dataset1 = f"scielo_{domain}_{SRC_LANG}_{TRG_LANG}"
+            print(f"Evaluating model from: {dataset1}...")
 
             # Paths
-            model_path = os.path.abspath(os.path.join(BASE_PATH, f"../{dataset}/checkpoints/transformer/checkpoint_best.pt"))
-            testset_path = os.path.abspath(os.path.join(BASE_PATH, f"../{dataset}{tmp}"))
-            src_dict = os.path.abspath(os.path.join(BASE_PATH, f"../{dataset}/data-bin/{dataset}/dict.{SRC_LANG}.txt"))
-            tgt_dict = os.path.abspath(os.path.join(BASE_PATH, f"../{dataset}/data-bin/{dataset}/dict.{TRG_LANG}.txt"))
+            MODEL_BASEPATH = os.path.abspath(os.path.join(BASE_PATH, dataset1))
 
             for domain2 in DOMAINS:
-                # Preprocess files
-                print(f"\t- Pre-processing testset from: {domain2}...")
-                output_path = os.path.join(BASE_PATH, f"{SRC_LANG}-{TRG_LANG}", domain2)
-                subprocess.call(['sh', './scripts/3_preprocess-test.sh', str(VOCAB_SIZE), SRC_LANG, TRG_LANG, src_dict, tgt_dict, testset_path, output_path, FAST_PATH])
+                print(f"\t- Preprocessing test set from: {domain2}...")
+                dataset2 = f"scielo_{domain2}_{SRC_LANG}_{TRG_LANG}"
+                TEST_DATAPATH = os.path.abspath(os.path.join(BASE_PATH, dataset2))
+                OUTPUT_PATH = os.path.abspath(os.path.join(BASE_PATH, "tests", dataset1, domain2))
+
+                # subprocess.call(['sh', './scripts/3_preprocess-test.sh', str(VOCAB_SIZE), SRC_LANG, TRG_LANG, MODEL_BASEPATH, TEST_DATAPATH, OUTPUT_PATH, FAST_PATH])
 
                 # Generate them
                 print(f"\t- Generating translations for: {domain2}...")
-                subprocess.call(['sh', './scripts/5_generate.sh', SRC_LANG, TRG_LANG, domain2, model_path, output_path, dataset])
+                subprocess.call(['sh', './scripts/5_generate.sh', SRC_LANG, TRG_LANG, OUTPUT_PATH, MODEL_BASEPATH])
 
-                return
+            print("")
+            print("########################################################################")
+            print("########################################################################")
+            print("")
+        print("")
+        print("------------------------------------------------------------------------")
+        print("------------------------------------------------------------------------")
+        print("")
+
 
 
 if __name__ == "__main__":
