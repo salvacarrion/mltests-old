@@ -18,7 +18,7 @@ fairseq-train \
      --dropout 0.1 --weight-decay 0.0001 \
      --optimizer adam \
      --criterion label_smoothed_cross_entropy --label-smoothing 0.1 \
-     --max-epoch	10 \
+     --max-epoch	50 \
      --update-freq 8 \
      --max-tokens 4096 \
      --warmup-updates 4000 \
