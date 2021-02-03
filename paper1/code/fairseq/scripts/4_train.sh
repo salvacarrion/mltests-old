@@ -31,7 +31,6 @@ fairseq-train \
      --save-dir $BASE_PATH/checkpoints \
      --best-checkpoint-metric bleu \
      --tensorboard-logdir $BASE_PATH/logdir \
-     --num-workers $(nproc) \
      --task translation \
      --eval-bleu \
      --eval-bleu-args '{"beam": 5}' \
@@ -40,6 +39,7 @@ fairseq-train \
      --eval-bleu-print-samples \
      --best-checkpoint-metric bleu --maximize-best-checkpoint-metric \
      --patience	5
+     --num-workers $(nproc) \
 
 
 #    --force-anneal 50 \

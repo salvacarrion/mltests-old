@@ -29,7 +29,7 @@ fairseq-generate \
     --beam 5 \
     --scoring bleu \
     --results-path $EVAL_PATH \
-
+     --num-workers $(nproc) \
 
 
 #fairseq-generate data-bin/scielo_health_es_en/ --source-lang es --target-lang en --path checkpoints/transformer/checkpoint_best.pt --tokenizer moses --remove-bpe --beam 5 --scoring bleu
