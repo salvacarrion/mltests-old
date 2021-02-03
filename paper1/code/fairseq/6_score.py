@@ -2,7 +2,7 @@ import os
 import subprocess
 
 if os.environ.get('MACHINE') == "HOME":
-    BASE_PATH = "/home/salvacarrion/Documents/Programming/Datasets/Scielo/fairseq/"
+    BASE_PATH = "/home/salvacarrion/Documents/Programming/Datasets/scielo/fairseq/"
 else:
     BASE_PATH = "/home/scarrion/datasets/Scielo/fairseq/"
 

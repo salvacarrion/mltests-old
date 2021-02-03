@@ -3,14 +3,14 @@ import subprocess
 
 if os.environ.get('MACHINE') == "HOME":
     print("Local")
-    BASE_PATH = "/home/salvacarrion/Documents/Programming/Datasets/Scielo/fairseq/tests"
+    BASE_PATH = "/home/salvacarrion/Documents/Programming/Datasets/scielo/fairseq/tests"
     FAST_PATH = "/home/salvacarrion/Documents/packages/fastBPE/fast"
-    tmp="/data"
+    tmp = "/data"
 else:
     print("Remote")
-    BASE_PATH = "/home/scarrion/datasets/Scielo/fairseq/tests"
+    BASE_PATH = "/home/scarrion/datasets/scielo/fairseq/tests"
     FAST_PATH = "/home/scarrion/packages/fastBPE/fast"
-    tmp=""
+    tmp = ""
 
 VOCAB_SIZE = 32000
 DOMAINS = ["health", "biological", "merged"]

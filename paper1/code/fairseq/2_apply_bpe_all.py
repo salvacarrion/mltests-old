@@ -2,7 +2,10 @@ import os
 import subprocess
 
 VOCAB_SIZE = 32000
-BASE_PATH = "/home/salvacarrion/Documents/Programming/Datasets/Scielo/fairseq/"
+if os.environ.get('MACHINE') == "HOME":
+    BASE_PATH = "/home/salvacarrion/Documents/Programming/Datasets/scielo/fairseq/"
+else:
+    BASE_PATH = "/home/scarrion/datasets/scielo/fairseq/"
 
 for SRC_LANG, TRG_LANG in [("es", "en"), ("pt", "en")]:
     for d in ["health", "biological", "merged"]:
