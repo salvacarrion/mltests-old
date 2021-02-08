@@ -2,9 +2,13 @@ import os
 import subprocess
 
 if os.environ.get('MACHINE') == "HOME":
-    BASE_PATH = "/home/salvacarrion/Documents/Programming/Datasets/scielo/fairseq/"
+    print("Local")
+    BASE_PATH = "/home/salvacarrion/Documents/Programming/Datasets/scielo/fairseq"
+    FAST_PATH = "/home/salvacarrion/Documents/packages/fastBPE/fast"
 else:
-    BASE_PATH = "/home/scarrion/datasets/scielo/fairseq/"
+    print("Remote")
+    BASE_PATH = "/home/scarrion/datasets/scielo/fairseq"
+    FAST_PATH = "/home/scarrion/packages/fastBPE/fast"
 
 for SRC_LANG, TRG_LANG in [("es", "en"), ("pt", "en")]:
     for d in ["health", "biological", "merged"]:

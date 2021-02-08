@@ -7,7 +7,7 @@ TRG_LANG=$3
 DATASET=$4
 BASE_PATH=$5
 NPROC=$(nproc)
-cd
+
 # Show constants
 echo "Preprocessing files for Fairseq... ****************"
 echo "- Source language: "$SRC_LANG
@@ -22,5 +22,7 @@ fairseq-preprocess \
     --validpref $BASE_PATH/bpe/val.tok.bpe.$VOCAB_SIZE \
     --testpref $BASE_PATH/bpe/test.tok.bpe.$VOCAB_SIZE \
     --destdir $BASE_PATH/data-bin \
+    --srcdict	$BASE_PATH/bpe/dict.${SRC_LANG}.txt \
+    --tgtdict	$BASE_PATH/bpe/dict.${TRG_LANG}.txt \
     --workers	$(nproc)
 

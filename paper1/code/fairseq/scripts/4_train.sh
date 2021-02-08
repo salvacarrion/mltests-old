@@ -13,33 +13,42 @@ echo "- Base path: "$BASE_PATH
 
 # Train model
 fairseq-train \
-     $BASE_PATH/data-bin/ \
-     --arch transformer \
-     --dropout 0.1 --weight-decay 0.0001 \
-     --optimizer adam \
-     --criterion label_smoothed_cross_entropy --label-smoothing 0.1 \
-     --max-epoch	50 \
-     --update-freq 8 \
-     --max-tokens 4096 \
-     --warmup-updates 4000 \
-     --seed 1 \
-     --lr 1e-3  \
-     --lr-scheduler reduce_lr_on_plateau  \
-     --clip-norm 1.0 \
-     --no-epoch-checkpoints \
-     --log-format simple \
-     --save-dir $BASE_PATH/checkpoints \
-     --best-checkpoint-metric bleu \
-     --tensorboard-logdir $BASE_PATH/logdir \
-     --task translation \
-     --eval-bleu \
-     --eval-bleu-args '{"beam": 5}' \
-     --eval-bleu-detok moses \
-     --eval-bleu-remove-bpe \
-     --eval-bleu-print-samples \
-     --best-checkpoint-metric bleu --maximize-best-checkpoint-metric \
-     --patience	5
-     --num-workers $(nproc) \
+    $BASE_PATH/data-bin \
+    --arch transformer \
+    --optimizer adam \
+    --criterion label_smoothed_cross_entropy --label-smoothing 0.1 \
+    --max-tokens 4096 \
+    --num-workers	$(nproc) \
+    --max-epoch	50 \
+    --seed 1 \
+    --save-dir $BASE_PATH/checkpoints \
+    --log-format simple \
+    --no-epoch-checkpoints \
+    --tensorboard-logdir $BASE_PATH/logdir \
+    --wandb-project	"mltests" \
+    --update-freq 8 \
+    --eval-bleu \
+    --eval-bleu-args '{"beam": 5, "max_len_a": 1.2, "max_len_b": 10}' \
+    --eval-bleu-detok moses \
+    --eval-bleu-remove-bpe \
+    --eval-bleu-print-samples \
+    --best-checkpoint-metric bleu --maximize-best-checkpoint-metric \
+    --clip-norm 1.0 \
+    --lr 1e-3  \
+    --lr-scheduler reduce_lr_on_plateau  \
+    --warmup-updates 4000 \
+    --dropout 0.1 --weight-decay 0.0001 \
+    --restore-file $BASE_PATH/checkpoints/checkpoint_best_health.pt \
+    --patience 5
+#    --force-anneal 50 \
+#    --fp16 \
+#    --finetune-from-model "/home/salvacarrion/Documents/Programming/Datasets/Scielo/backups/local_01_29/checkpoints_scielo_health_es_en/transformer/checkpoint_best.pt" \
+--reset-dataloader \
+--reset-lr-scheduler \
+--reset-meters \
+--reset-optimizer \
+
+
 
 
 #    --force-anneal 50 \

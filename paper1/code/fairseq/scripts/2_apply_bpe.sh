@@ -5,9 +5,9 @@ VOCAB_SIZE=$1
 SRC_LANG=$2
 TRG_LANG=$3
 BASE_PATH=$4
+FASTBPE_PATH=$5
 
 # Fast BPE: https://github.com/glample/fastBPE
-FASTBPE_PATH=/home/salvacarrion/Documents/packages/fastBPE/fast
 
 # Show constants
 echo "Applying BPE... ****************"
@@ -19,7 +19,7 @@ echo "- Base path: "$BASE_PATH
 mkdir -p $BASE_PATH/bpe/
 
 # Learn codes (jointly)
-$FASTBPE_PATH learnbpe $VOCAB_SIZE $BASE_PATH/clean/train.tok.clean.$SRC_LANG $BASE_PATH/clean/train.tok.clean.$TRG_LANG > $BASE_PATH/bpe/bpecodes
+#$FASTBPE_PATH learnbpe $VOCAB_SIZE $BASE_PATH/clean/train.tok.clean.$SRC_LANG $BASE_PATH/clean/train.tok.clean.$TRG_LANG > $BASE_PATH/bpe/bpecodes
 
 # Apply BPE
 $FASTBPE_PATH applybpe $BASE_PATH/bpe/train.tok.bpe.$VOCAB_SIZE.$SRC_LANG $BASE_PATH/clean/train.tok.clean.$SRC_LANG $BASE_PATH/bpe/bpecodes
