@@ -27,7 +27,7 @@ def generate():
                 print(f"\t- Preprocessing test set from: {domain2}...")
                 dataset2 = f"scielo_{domain2}_{SRC_LANG}_{TRG_LANG}"
                 TEST_DATAPATH = os.path.abspath(os.path.join(BASE_PATH, dataset2))
-                OUTPUT_PATH = os.path.abspath(os.path.join(BASE_PATH, "evaluate_test_bleu5", dataset1, domain2))
+                OUTPUT_PATH = os.path.abspath(os.path.join(BASE_PATH, "evaluate_test_bleu5__2", dataset1, domain2))
 
                 subprocess.call(['sh', './scripts/3_preprocess-test.sh', str(VOCAB_SIZE), SRC_LANG, TRG_LANG, MODEL_BASEPATH, TEST_DATAPATH, OUTPUT_PATH, FAST_PATH])
 

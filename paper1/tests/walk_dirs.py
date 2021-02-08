@@ -14,11 +14,13 @@ else:
 DOMAINS = ["health", "biological", "merged"]
 
 for SRC_LANG, TRG_LANG in [("es", "en"), ("pt", "en")]:
-    for domain in DOMAINS:
-        dataset = f"scielo_{domain}_{SRC_LANG}_{TRG_LANG}"
-        path = os.path.join(BASE_PATH, dataset, "valset-bleu5-detok-etc", "test.tok.clean.en")
+    for domain1 in DOMAINS:
+        dataset = f"scielo_{domain1}_{SRC_LANG}_{TRG_LANG}"
+        print(domain1)
+        for domain2 in DOMAINS:
+            path = os.path.join(BASE_PATH, "evaluate_test_bleu5", dataset, domain2, "eval", "generate-test.txt")
 
-        with open(path, 'r') as f:
-            a = f.read().strip()
-            print(f"{dataset}: {len(a)}")
-
+            with open(path, 'r') as f:
+                a = f.read().strip().split("\n")
+                print(f"\t- {domain2}:\n{a[-1]}")
+                asds = 3

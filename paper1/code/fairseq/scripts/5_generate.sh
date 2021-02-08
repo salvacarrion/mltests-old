@@ -24,10 +24,11 @@ fairseq-generate \
     $BASE_PATH/data-bin \
     --source-lang $SRC_LANG --target-lang $TRG_LANG \
     --path $MODEL_PATH/checkpoints/checkpoint_best.pt \
-    --tokenizer	moses \
-    --remove-bpe \
-    --beam 5 \
-    --scoring bleu \
+    --eval-bleu \
+    --eval-bleu-args '{"beam": 5, "max_len_a": 1.2, "max_len_b": 10}' \
+    --eval-bleu-detok moses \
+    --eval-bleu-remove-bpe \
+    --eval-bleu-print-samples \
     --results-path $EVAL_PATH \
      --num-workers $(nproc) \
 
