@@ -8,7 +8,7 @@ LANG_PAIRS = [("es", "en"), ("pt", "en")]
 DOMAINS = ["health", "biological", "merged"]
 
 # Read data
-df = pd.read_csv("../data/overlapping.csv")
+df = pd.read_csv("../../data/overlapping.csv")
 col="overlap"
 # Plot
 for src_lang, trg_lang in LANG_PAIRS:
