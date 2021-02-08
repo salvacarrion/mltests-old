@@ -22,7 +22,5 @@ fairseq-preprocess \
     --validpref $BASE_PATH/bpe/val.tok.bpe.$VOCAB_SIZE \
     --testpref $BASE_PATH/bpe/test.tok.bpe.$VOCAB_SIZE \
     --destdir $BASE_PATH/data-bin \
-    --srcdict	$BASE_PATH/bpe/dict.${SRC_LANG}.txt \
-    --tgtdict	$BASE_PATH/bpe/dict.${TRG_LANG}.txt \
     --workers	$(nproc)
 
