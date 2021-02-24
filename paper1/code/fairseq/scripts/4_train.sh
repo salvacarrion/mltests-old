@@ -37,7 +37,6 @@ fairseq-train \
     --lr-scheduler reduce_lr_on_plateau  \
     --warmup-updates 4000 \
     --dropout 0.1 --weight-decay 0.0001 \
-    --restore-file $BASE_PATH/checkpoints/checkpoint_best_health.pt \
     --patience 5
 #    --force-anneal 50 \
 #    --fp16 \
@@ -47,6 +46,7 @@ fairseq-train \
 #--reset-meters \
 #--reset-optimizer \
 #--wandb-project "mltests" \
+#    --restore-file $BASE_PATH/checkpoints/checkpoint_best_health.pt \
 
 
 
