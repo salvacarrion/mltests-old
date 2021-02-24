@@ -25,7 +25,6 @@ fairseq-train \
     --log-format simple \
     --no-epoch-checkpoints \
     --tensorboard-logdir $BASE_PATH/logdir \
-    --wandb-project	"mltests" \
     --update-freq 8 \
     --eval-bleu \
     --eval-bleu-args '{"beam": 5, "max_len_a": 1.2, "max_len_b": 10}' \
@@ -47,6 +46,7 @@ fairseq-train \
 #--reset-lr-scheduler \
 #--reset-meters \
 #--reset-optimizer \
+#--wandb-project "mltests" \
 
 
 
