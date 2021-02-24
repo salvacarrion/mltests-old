@@ -6,17 +6,17 @@ sns.set()
 
 
 data = [
-    {"Model": "Health", "Test domain": "Health", "lang": "es-en", "BLEU": 39.31},
-    {"Model": "Health", "Test domain": "Biological", "lang": "es-en", "BLEU": 40.53},
-    {"Model": "Health", "Test domain": "Merged", "lang": "es-en", "BLEU": 40.08},
+    {"Model": "Health", "Test domain": "Health", "lang": "es-en", "BLEU": 39.14},
+    {"Model": "Health", "Test domain": "Biological", "lang": "es-en", "BLEU": 39.52},
+    {"Model": "Health", "Test domain": "Merged", "lang": "es-en", "BLEU": 39.45},
 
-    {"Model": "Biological", "Test domain": "Health", "lang": "es-en", "BLEU": 27.07},
-    {"Model": "Biological", "Test domain": "Biological", "lang": "es-en", "BLEU": 33.60},
-    {"Model": "Biological", "Test domain": "Merged", "lang": "es-en", "BLEU": 30.28},
+    {"Model": "Biological", "Test domain": "Health", "lang": "es-en", "BLEU": 26.37},
+    {"Model": "Biological", "Test domain": "Biological", "lang": "es-en", "BLEU": 32.81},
+    {"Model": "Biological", "Test domain": "Merged", "lang": "es-en", "BLEU": 29.60},
 
-    {"Model": "Health+Biological", "Test domain": "Health", "lang": "es-en", "BLEU": 40.20},
-    {"Model": "Health+Biological", "Test domain": "Biological", "lang": "es-en", "BLEU": 43.84},
-    {"Model": "Health+Biological", "Test domain": "Merged", "lang": "es-en", "BLEU": 42.13},
+    {"Model": "Health+Biological", "Test domain": "Health", "lang": "es-en", "BLEU": 39.78},
+    {"Model": "Health+Biological", "Test domain": "Biological", "lang": "es-en", "BLEU": 42.74},
+    {"Model": "Health+Biological", "Test domain": "Merged", "lang": "es-en", "BLEU": 41.34},
 
     {"Model": "Health→Biological\n(Naive)", "Test domain": "Health", "lang": "es-en", "BLEU": 1},
     {"Model": "Health→Biological\n(Naive)", "Test domain": "Biological", "lang": "es-en", "BLEU": 1},
@@ -33,17 +33,17 @@ data = [
     
     ##
 
-    {"Model": "Health", "Test domain": "Health", "lang": "pt-en", "BLEU": 39.52},
-    {"Model": "Health", "Test domain": "Biological", "lang": "pt-en", "BLEU": 40.06},
-    {"Model": "Health", "Test domain": "Merged", "lang": "pt-en", "BLEU": 39.82},
+    {"Model": "Health", "Test domain": "Health", "lang": "pt-en", "BLEU": 38.79},
+    {"Model": "Health", "Test domain": "Biological", "lang": "pt-en", "BLEU": 39.51},
+    {"Model": "Health", "Test domain": "Merged", "lang": "pt-en", "BLEU": 39.18},
 
-    {"Model": "Biological", "Test domain": "Health", "lang": "pt-en", "BLEU": 25.65},
-    {"Model": "Biological", "Test domain": "Biological", "lang": "pt-en", "BLEU": 32.40},
-    {"Model": "Biological", "Test domain": "Merged", "lang": "pt-en", "BLEU": 29.22},
+    {"Model": "Biological", "Test domain": "Health", "lang": "pt-en", "BLEU": 25.68},
+    {"Model": "Biological", "Test domain": "Biological", "lang": "pt-en", "BLEU": 31.68},
+    {"Model": "Biological", "Test domain": "Merged", "lang": "pt-en", "BLEU": 28.74},
 
-    {"Model": "Health+Biological", "Test domain": "Health", "lang": "pt-en", "BLEU": 40.19},
-    {"Model": "Health+Biological", "Test domain": "Biological", "lang": "pt-en", "BLEU": 41.95},
-    {"Model": "Health+Biological", "Test domain": "Merged", "lang": "pt-en", "BLEU": 41.15},
+    {"Model": "Health+Biological", "Test domain": "Health", "lang": "pt-en", "BLEU": 39.79},
+    {"Model": "Health+Biological", "Test domain": "Biological", "lang": "pt-en", "BLEU": 41.56},
+    {"Model": "Health+Biological", "Test domain": "Merged", "lang": "pt-en", "BLEU": 40.72},
 
     {"Model": "Health→Biological\n(Naive)", "Test domain": "Health", "lang": "pt-en", "BLEU": 1},
     {"Model": "Health→Biological\n(Naive)", "Test domain": "Biological", "lang": "pt-en", "BLEU": 1},
@@ -78,7 +78,7 @@ plt.legend(loc='upper right')
 plt.tight_layout()
 
 # Save figure
-plt.savefig(f"../../data/images/bleu_scores_{LANG}.pdf")
+plt.savefig(f"../../data/images/bleu_scores_{LANG}__2.pdf")
 print("Figure saved!")
 
 # Show plot

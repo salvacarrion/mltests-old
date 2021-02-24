@@ -1,0 +1,43 @@
+Remote
+health
+	- health:
+Generate test with beam=5: BLEU4 = 39.14, 67.1/44.6/32.4/24.2 (BP=1.000, ratio=1.019, syslen=147505, reflen=144754)
+	- biological:
+Generate test with beam=5: BLEU4 = 39.52, 66.8/45.1/33.1/25.1 (BP=0.994, ratio=0.994, syslen=144476, reflen=145388)
+	- merged:
+Generate test with beam=5: BLEU4 = 39.45, 67.0/44.8/32.8/24.6 (BP=1.000, ratio=1.006, syslen=291981, reflen=290142)
+biological
+	- health:
+Generate test with beam=5: BLEU4 = 26.37, 57.1/32.1/20.1/13.1 (BP=1.000, ratio=1.015, syslen=158884, reflen=156503)
+	- biological:
+Generate test with beam=5: BLEU4 = 32.81, 63.7/39.3/26.8/18.9 (BP=0.977, ratio=0.978, syslen=131517, reflen=134542)
+	- merged:
+Generate test with beam=5: BLEU4 = 29.60, 60.1/35.4/23.1/15.8 (BP=0.998, ratio=0.998, syslen=290401, reflen=291045)
+merged
+	- health:
+Generate test with beam=5: BLEU4 = 39.78, 67.5/45.2/33.0/24.9 (BP=1.000, ratio=1.021, syslen=148243, reflen=145259)
+	- biological:
+Generate test with beam=5: BLEU4 = 42.74, 69.2/48.0/36.3/28.3 (BP=0.995, ratio=0.995, syslen=138355, reflen=139103)
+	- merged:
+Generate test with beam=5: BLEU4 = 41.34, 68.3/46.5/34.6/26.5 (BP=1.000, ratio=1.008, syslen=286598, reflen=284362)
+health
+	- health:
+Generate test with beam=5: BLEU4 = 38.79, 68.4/44.7/32.0/23.7 (BP=0.994, ratio=0.994, syslen=112208, reflen=112838)
+	- biological:
+Generate test with beam=5: BLEU4 = 39.51, 67.0/44.7/33.0/25.1 (BP=0.996, ratio=0.996, syslen=128024, reflen=128584)
+	- merged:
+Generate test with beam=5: BLEU4 = 39.18, 67.7/44.7/32.5/24.4 (BP=0.995, ratio=0.995, syslen=240232, reflen=241422)
+biological
+	- health:
+Generate test with beam=5: BLEU4 = 25.68, 58.1/32.1/19.9/12.9 (BP=0.978, ratio=0.978, syslen=118894, reflen=121572)
+	- biological:
+Generate test with beam=5: BLEU4 = 31.68, 63.1/38.0/25.7/18.1 (BP=0.974, ratio=0.974, syslen=120175, reflen=123336)
+	- merged:
+Generate test with beam=5: BLEU4 = 28.74, 60.6/35.1/22.8/15.5 (BP=0.976, ratio=0.976, syslen=239069, reflen=244908)
+merged
+	- health:
+Generate test with beam=5: BLEU4 = 39.79, 69.0/45.5/32.9/24.6 (BP=0.997, ratio=0.997, syslen=112786, reflen=113170)
+	- biological:
+Generate test with beam=5: BLEU4 = 41.56, 68.9/46.8/35.0/27.1 (BP=0.993, ratio=0.993, syslen=123911, reflen=124735)
+	- merged:
+Generate test with beam=5: BLEU4 = 40.72, 69.0/46.2/34.0/25.9 (BP=0.995, ratio=0.995, syslen=236697, reflen=237905)

@@ -19,7 +19,7 @@ echo "- Base path: "$BASE_PATH
 mkdir -p $BASE_PATH/bpe/
 
 # Learn codes (jointly)
-#$FASTBPE_PATH learnbpe $VOCAB_SIZE $BASE_PATH/clean/train.tok.clean.$SRC_LANG $BASE_PATH/clean/train.tok.clean.$TRG_LANG > $BASE_PATH/bpe/bpecodes
+$FASTBPE_PATH learnbpe $VOCAB_SIZE $BASE_PATH/clean/train.tok.clean.$SRC_LANG $BASE_PATH/clean/train.tok.clean.$TRG_LANG > $BASE_PATH/bpe/bpecodes
 
 # Apply BPE
 $FASTBPE_PATH applybpe $BASE_PATH/bpe/train.tok.bpe.$VOCAB_SIZE.$SRC_LANG $BASE_PATH/clean/train.tok.clean.$SRC_LANG $BASE_PATH/bpe/bpecodes

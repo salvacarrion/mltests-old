@@ -43,10 +43,10 @@ fairseq-train \
 #    --force-anneal 50 \
 #    --fp16 \
 #    --finetune-from-model "/home/salvacarrion/Documents/Programming/Datasets/Scielo/backups/local_01_29/checkpoints_scielo_health_es_en/transformer/checkpoint_best.pt" \
---reset-dataloader \
---reset-lr-scheduler \
---reset-meters \
---reset-optimizer \
+#--reset-dataloader \
+#--reset-lr-scheduler \
+#--reset-meters \
+#--reset-optimizer \
 
 
 

@@ -5,7 +5,7 @@ import sys
 
 if os.environ.get('MACHINE') == "HOME":
     print("Local")
-    BASE_PATH = "/home/salvacarrion/Documents/Programming/Datasets/scielo/fairseq"
+    BASE_PATH = "/home/salvacarrion/Documents/Programming/Datasets/Scielo/fairseq"
     FAST_PATH = "/home/salvacarrion/Documents/packages/fastBPE/fast"
 else:
     print("Remote")
