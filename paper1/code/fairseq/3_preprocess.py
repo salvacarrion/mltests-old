@@ -15,10 +15,14 @@ else:
 VOCAB_SIZE = 32000
 
 # for SRC_LANG, TRG_LANG in [("es", "en"), ("pt", "en")]:
-#         dataset = f"scielo_health_biological_{SRC_LANG}_{TRG_LANG}"
+#     for domain in ["health", "biological", "merged"]:
+#         dataset = f"scielo_{domain}_{SRC_LANG}_{TRG_LANG}"
+#
+#         path = os.path.join(BASE_PATH, dataset)
+#         subprocess.call(['sh', './scripts/3_preprocess.sh', str(VOCAB_SIZE), SRC_LANG, TRG_LANG, dataset, path])
+
 
 for SRC_LANG, TRG_LANG in [("es", "en"), ("pt", "en")]:
-    for domain in ["health", "biological", "merged"]:
-        dataset = f"scielo_{domain}_{SRC_LANG}_{TRG_LANG}"
-        path = os.path.join(BASE_PATH, dataset)
-        subprocess.call(['sh', './scripts/3_preprocess.sh', str(VOCAB_SIZE), SRC_LANG, TRG_LANG, dataset, path])
+    dataset = f"scielo_health_biological_{SRC_LANG}_{TRG_LANG}"
+    path = os.path.join(BASE_PATH, dataset)
+    subprocess.call(['sh', './scripts/3_preprocess-test.sh', str(VOCAB_SIZE), SRC_LANG, TRG_LANG, dataset, path])

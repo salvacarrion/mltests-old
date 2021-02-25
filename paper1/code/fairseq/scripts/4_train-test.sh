@@ -38,4 +38,7 @@ fairseq-train \
     --warmup-updates 4000 \
     --dropout 0.1 --weight-decay 0.0001 \
     --patience 5 \
-    --wandb-project "mltests"
+    --restore-file $BASE_PATH/checkpoints/health_checkpoint_best.pt \
+    --reset-dataloader \
+
+#    --wandb-project "mltests"

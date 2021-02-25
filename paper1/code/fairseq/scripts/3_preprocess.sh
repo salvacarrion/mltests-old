@@ -6,7 +6,6 @@ SRC_LANG=$2
 TRG_LANG=$3
 DATASET=$4
 BASE_PATH=$5
-NPROC=$(nproc)
 
 # Show constants
 echo "Preprocessing files for Fairseq... ****************"
