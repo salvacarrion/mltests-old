@@ -40,5 +40,12 @@ fairseq-train \
     --patience 5 \
     --restore-file $BASE_PATH/checkpoints/health_checkpoint_best.pt \
     --reset-dataloader \
+    --reset-lr-scheduler \
+    --reset-meters \
+    --reset-optimizer \
+     --wandb-project "mltests"
 
-#    --wandb-project "mltests"
+echo "##########################################"
+echo "Training finished!"
+echo "##########################################"
+exit 1

@@ -39,3 +39,8 @@ fairseq-train \
     --dropout 0.1 --weight-decay 0.0001 \
     --patience 5 \
     --wandb-project "mltests"
+
+echo "##########################################"
+echo "Training finished!"
+echo "##########################################"
+exit 1
