@@ -1,0 +1,47 @@
+/home/salvacarrion/anaconda3/envs/nmt/bin/python /snap/pycharm-professional/230/plugins/python/helpers/pydev/pydevd.py --multiproc --qt-support=auto --client 127.0.0.1 --port 42511 --file /home/salvacarrion/Documents/Programming/Python/mltests/paper1/code/fairseq/6_walk_eval_dirs.py
+Connected to pydev debugger (build 203.7148.72)
+Local
+health
+	- health:
+Generate test with beam=5: BLEU4 = 39.02, 67.0/44.4/32.3/24.1 (BP=1.000, ratio=1.021, syslen=147778, reflen=144751)
+	- biological:
+Generate test with beam=5: BLEU4 = 39.38, 66.7/45.0/33.0/25.0 (BP=0.993, ratio=0.993, syslen=144331, reflen=145377)
+	- merged:
+Generate test with beam=5: BLEU4 = 39.34, 66.8/44.7/32.7/24.6 (BP=1.000, ratio=1.007, syslen=292109, reflen=290128)
+biological
+	- health:
+Generate test with beam=5: BLEU4 = 26.19, 57.2/32.0/19.9/12.9 (BP=1.000, ratio=1.006, syslen=157545, reflen=156606)
+	- biological:
+Generate test with beam=5: BLEU4 = 32.76, 64.2/39.7/27.0/19.0 (BP=0.968, ratio=0.969, syslen=130399, reflen=134587)
+	- merged:
+Generate test with beam=5: BLEU4 = 29.36, 60.4/35.5/23.1/15.7 (BP=0.989, ratio=0.989, syslen=287944, reflen=291193)
+merged
+	- health:
+Generate test with beam=5: BLEU4 = 39.63, 67.5/45.1/32.9/24.7 (BP=1.000, ratio=1.020, syslen=148236, reflen=145275)
+	- biological:
+Generate test with beam=5: BLEU4 = 42.95, 69.3/48.2/36.4/28.3 (BP=0.997, ratio=0.997, syslen=138663, reflen=139093)
+	- merged:
+Generate test with beam=5: BLEU4 = 41.32, 68.4/46.6/34.6/26.5 (BP=1.000, ratio=1.009, syslen=286899, reflen=284368)
+health
+	- health:
+Generate test with beam=5: BLEU4 = 38.86, 68.6/44.8/32.1/23.6 (BP=0.994, ratio=0.994, syslen=112165, reflen=112799)
+	- biological:
+Generate test with beam=5: BLEU4 = 39.61, 67.0/44.8/33.0/25.2 (BP=0.997, ratio=0.997, syslen=128114, reflen=128542)
+	- merged:
+Generate test with beam=5: BLEU4 = 39.26, 67.8/44.8/32.6/24.5 (BP=0.996, ratio=0.996, syslen=240279, reflen=241341)
+biological
+	- health:
+Generate test with beam=5: BLEU4 = 25.67, 57.5/31.6/19.4/12.6 (BP=0.994, ratio=0.994, syslen=120788, reflen=121513)
+	- biological:
+Generate test with beam=5: BLEU4 = 31.94, 62.8/37.9/25.6/18.0 (BP=0.987, ratio=0.987, syslen=121749, reflen=123378)
+	- merged:
+Generate test with beam=5: BLEU4 = 28.86, 60.2/34.7/22.5/15.3 (BP=0.990, ratio=0.990, syslen=242537, reflen=244891)
+merged
+	- health:
+Generate test with beam=5: BLEU4 = 39.54, 68.9/45.3/32.6/24.2 (BP=0.998, ratio=0.998, syslen=112953, reflen=113142)
+	- biological:
+Generate test with beam=5: BLEU4 = 41.80, 68.8/46.8/35.1/27.2 (BP=0.998, ratio=0.998, syslen=124556, reflen=124770)
+	- merged:
+Generate test with beam=5: BLEU4 = 40.74, 68.8/46.1/33.9/25.8 (BP=0.998, ratio=0.998, syslen=237509, reflen=237912)
+
+Process finished with exit code 0

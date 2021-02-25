@@ -15,7 +15,7 @@ for SRC_LANG, TRG_LANG in LANG_PAIRS:
 
         # Read vocabs
         for lang in [SRC_LANG, TRG_LANG]:
-            vocab_filename = f"scielo_{domain}_{SRC_LANG}_{TRG_LANG}/vocab.tok.bpe.32000.{lang}"
+            vocab_filename = f"scielo_{domain}_{SRC_LANG}_{TRG_LANG}/bpe/train.tok.bpe.32000.{lang}"
             with open(os.path.join(BASE_PATH, vocab_filename), 'r') as f:
                 vocabs[domain][lang] = {w.split(' ')[0].strip() for w in f.read().strip().split('\n')}
 
@@ -47,5 +47,5 @@ df = pd.DataFrame(data=rows)
 print(df)
 
 # Save file
-df.to_csv("../data/overlapping.csv", index=False)
+df.to_csv("../../data/overlapping.csv", index=False)
 print("File saved!")

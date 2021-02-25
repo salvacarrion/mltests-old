@@ -37,7 +37,8 @@ fairseq-train \
     --lr-scheduler reduce_lr_on_plateau  \
     --warmup-updates 4000 \
     --dropout 0.1 --weight-decay 0.0001 \
-    --patience 5
+    --patience 5 \
+    --wandb-project "mltests"
 #    --force-anneal 50 \
 #    --fp16 \
 #    --finetune-from-model "/home/salvacarrion/Documents/Programming/Datasets/Scielo/backups/local_01_29/checkpoints_scielo_health_es_en/transformer/checkpoint_best.pt" \
@@ -45,7 +46,7 @@ fairseq-train \
 #--reset-lr-scheduler \
 #--reset-meters \
 #--reset-optimizer \
-#--wandb-project "mltests" \
+
 #    --restore-file $BASE_PATH/checkpoints/checkpoint_best_health.pt \
 
 
