@@ -8,11 +8,11 @@ SUFFLE = True
 
 BASEPATH = "/home/salvacarrion/Documents/Programming/Datasets/Scielo"
 
-DATA_PATH_TR = "/home/salvacarrion/Documents/Programming/Datasets/Scielo/cleaned/scielo-gma"
+DATA_PATH_TR = "/home/salvacarrion/Documents/Programming/Datasets/Scielo/cleaned-constrained/scielo-gma"
 RAW_FILES_TR = ["es-en-gma-biological.csv", "es-en-gma-health.csv", "es-en-gma-merged.csv",
                 "pt-en-gma-biological.csv", "pt-en-gma-health.csv", "pt-en-gma-merged.csv"]
 
-DATA_PATH_TS = "/home/salvacarrion/Documents/Programming/Datasets/Scielo/cleaned/testset_gma"
+DATA_PATH_TS = "/home/salvacarrion/Documents/Programming/Datasets/Scielo/cleaned-constrained/testset_gma"
 RAW_FILES_TS = [
                 "test-gma-es2en-biological.csv", "test-gma-es2en-health.csv", "test-gma-es2en-merged.csv",
                 "test-gma-pt2en-biological.csv", "test-gma-pt2en-health.csv", "test-gma-pt2en-merged.csv"
@@ -83,7 +83,8 @@ for fname_tr, fname_ts in zip(RAW_FILES_TR, RAW_FILES_TS):
             # Save file (one per language
             filename = os.path.join(savepath, f"{ds_name}.{lang}")
             with open(filename, 'w') as f:
-                lines = map(lambda x: x + '\n', ds[lang])
+                lines = list(map(lambda x: x + '\n', ds[lang]))
+
                 f.writelines(lines)
             print(f"File saved! ({filename})")
 

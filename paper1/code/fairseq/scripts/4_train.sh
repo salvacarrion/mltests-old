@@ -1,14 +1,10 @@
 #!/bin/sh
 
 # Define constants
-SRC_LANG=$1
-TRG_LANG=$2
-BASE_PATH=$3
+BASE_PATH=$1
 
 # Show constants
 echo "Training model... ****************"
-echo "- Source language: "$SRC_LANG
-echo "- Target language: "$TRG_LANG
 echo "- Base path: "$BASE_PATH
 
 # Train model

@@ -20,6 +20,7 @@ def train():
             dataset = f"scielo_{domain}_{SRC_LANG}_{TRG_LANG}"
 
             path = os.path.join(BASE_PATH, dataset)
+            subprocess.call(['sh', './scripts/2_learn_bpe.sh', str(VOCAB_SIZE), SRC_LANG, TRG_LANG, path, FAST_PATH])
             subprocess.call(['sh', './scripts/2_apply_bpe.sh', str(VOCAB_SIZE), SRC_LANG, TRG_LANG, path, FAST_PATH])
 
 
@@ -28,8 +29,8 @@ def train_finetune():
             dataset = f"scielo_health_biological_{SRC_LANG}_{TRG_LANG}"
 
             path = os.path.join(BASE_PATH, dataset)
-            subprocess.call(['sh', './scripts/2_apply_bpe-finetune.sh', str(VOCAB_SIZE), SRC_LANG, TRG_LANG, path, FAST_PATH])
+            subprocess.call(['sh', './scripts/2_apply_bpe.sh', str(VOCAB_SIZE), SRC_LANG, TRG_LANG, path, FAST_PATH])
 
 
 if __name__ == "__main__":
-    train_finetune()
+    train()

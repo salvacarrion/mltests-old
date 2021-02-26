@@ -6,12 +6,13 @@ import seaborn as sns
 sns.set()
 
 BASE_PATH = "/home/salvacarrion/Documents/Programming/Datasets/Scielo/fairseq/"
+FOLDER_NAME = "constrained"
 
 DATASETS = [
     "scielo_biological_es_en",
     "scielo_biological_pt_en",
-    "scielo_health_biological_es_en",
-    "scielo_health_biological_pt_en",
+    # "scielo_health_biological_es_en",
+    # "scielo_health_biological_pt_en",
     "scielo_health_es_en",
     "scielo_health_pt_en",
     "scielo_merged_es_en",
@@ -30,7 +31,7 @@ for dataset in DATASETS:
 
 # Save sizes
 df = pd.DataFrame(rows, columns=["Dataset", "Split", "Size"])
-df.to_csv(f"../../data/new/split_sizes.csv")
+df.to_csv(f"../../data/{FOLDER_NAME}/split_sizes_{FOLDER_NAME}.csv")
 print("Data saved!")
 
 # Print sizes
@@ -42,15 +43,15 @@ g.fig.set_size_inches(12, 8)
 
 # properties
 g.set(xlabel='Datasets', ylabel='Sizes')
-plt.title(f"Sizes across splits")
+plt.title(f"Sizes across splits ({FOLDER_NAME})")
 
 g.set_xticklabels(rotation=45, horizontalalignment="center")
 plt.legend(loc='upper right')
 plt.tight_layout()
 
 # Save figure
-plt.savefig(f"../../data/new/images/split_sizes.pdf")
-plt.savefig(f"../../data/new/images/split_sizes.jpg")
+plt.savefig(f"../../data/{FOLDER_NAME}/images/split_sizes_{FOLDER_NAME}.pdf")
+plt.savefig(f"../../data/{FOLDER_NAME}/images/split_sizes_{FOLDER_NAME}.jpg")
 print("Figure saved!")
 
 # Show plot

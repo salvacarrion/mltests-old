@@ -11,23 +11,30 @@ else:
     FAST_PATH = "/home/scarrion/packages/fastBPE/fast"
 
 VOCAB_SIZE = 32000
+SWAP_LANGS = False
 
 
 def train():
     for SRC_LANG, TRG_LANG in [("es", "en"), ("pt", "en")]:
+        if SWAP_LANGS:
+            print(f"Swapping languages ({SRC_LANG}-{TRG_LANG} => {TRG_LANG}-{SRC_LANG})...")
+            SRC_LANG, TRG_LANG = TRG_LANG, SRC_LANG
+
         for domain in ["health", "biological", "merged"]:
             dataset = f"scielo_{domain}_{SRC_LANG}_{TRG_LANG}"
-
             path = os.path.join(BASE_PATH, dataset)
-            subprocess.call(['sh', './scripts/4_train.sh', SRC_LANG, TRG_LANG, path])
+            subprocess.call(['sh', './scripts/4_train.sh', path])
 
 
 def train_finetune():
     for SRC_LANG, TRG_LANG in [("es", "en"), ("pt", "en")]:
-            dataset = f"scielo_health_biological_{SRC_LANG}_{TRG_LANG}"
+        if SWAP_LANGS:
+            print(f"Swapping languages ({SRC_LANG}-{TRG_LANG} => {TRG_LANG}-{SRC_LANG})...")
+            SRC_LANG, TRG_LANG = TRG_LANG, SRC_LANG
 
-            path = os.path.join(BASE_PATH, dataset)
-            subprocess.call(['sh', './scripts/4_train-finetune.sh', SRC_LANG, TRG_LANG, path])
+        dataset = f"scielo_health_biological_{SRC_LANG}_{TRG_LANG}"
+        path = os.path.join(BASE_PATH, dataset)
+        subprocess.call(['sh', './scripts/4_train-finetune.sh', path])
 
 
 if __name__ == "__main__":
