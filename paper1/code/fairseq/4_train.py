@@ -12,16 +12,23 @@ else:
 
 VOCAB_SIZE = 32000
 
-# for SRC_LANG, TRG_LANG in [("es", "en"), ("pt", "en")]:
-#     for domain in ["health", "biological", "merged"]:
-#         dataset = f"scielo_{domain}_{SRC_LANG}_{TRG_LANG}"
-#
-#         path = os.path.join(BASE_PATH, dataset)
-#         subprocess.call(['sh', './scripts/4_train.sh', SRC_LANG, TRG_LANG, path])
+
+def train():
+    for SRC_LANG, TRG_LANG in [("es", "en"), ("pt", "en")]:
+        for domain in ["health", "biological", "merged"]:
+            dataset = f"scielo_{domain}_{SRC_LANG}_{TRG_LANG}"
+
+            path = os.path.join(BASE_PATH, dataset)
+            subprocess.call(['sh', './scripts/4_train.sh', SRC_LANG, TRG_LANG, path])
 
 
-for SRC_LANG, TRG_LANG in [("es", "en"), ("pt", "en")]:
-        dataset = f"scielo_health_biological_{SRC_LANG}_{TRG_LANG}"
+def train_finetune():
+    for SRC_LANG, TRG_LANG in [("es", "en"), ("pt", "en")]:
+            dataset = f"scielo_health_biological_{SRC_LANG}_{TRG_LANG}"
 
-        path = os.path.join(BASE_PATH, dataset)
-        subprocess.call(['sh', './scripts/4_train-test.sh', SRC_LANG, TRG_LANG, path])
+            path = os.path.join(BASE_PATH, dataset)
+            subprocess.call(['sh', './scripts/4_train-finetune.sh', SRC_LANG, TRG_LANG, path])
+
+
+if __name__ == "__main__":
+    train_finetune()

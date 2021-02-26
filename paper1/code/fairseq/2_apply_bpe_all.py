@@ -13,12 +13,23 @@ else:
 
 DOMAINS = ["health", "biological", "merged"]
 
-for SRC_LANG, TRG_LANG in [("es", "en"), ("pt", "en")]:
-        dataset = f"scielo_health_biological_{SRC_LANG}_{TRG_LANG}"
 
-# for SRC_LANG, TRG_LANG in [("es", "en"), ("pt", "en")]:
-#     for domain in ["health", "biological", "merged"]:
-#         dataset = f"scielo_{domain}_{SRC_LANG}_{TRG_LANG}"
+def train():
+    for SRC_LANG, TRG_LANG in [("es", "en"), ("pt", "en")]:
+        for domain in ["health", "biological", "merged"]:
+            dataset = f"scielo_{domain}_{SRC_LANG}_{TRG_LANG}"
 
-        path = os.path.join(BASE_PATH, dataset)
-        subprocess.call(['sh', './scripts/2_apply_bpe.sh', str(VOCAB_SIZE), SRC_LANG, TRG_LANG, path, FAST_PATH])
+            path = os.path.join(BASE_PATH, dataset)
+            subprocess.call(['sh', './scripts/2_apply_bpe.sh', str(VOCAB_SIZE), SRC_LANG, TRG_LANG, path, FAST_PATH])
+
+
+def train_finetune():
+    for SRC_LANG, TRG_LANG in [("es", "en"), ("pt", "en")]:
+            dataset = f"scielo_health_biological_{SRC_LANG}_{TRG_LANG}"
+
+            path = os.path.join(BASE_PATH, dataset)
+            subprocess.call(['sh', './scripts/2_apply_bpe-finetune.sh', str(VOCAB_SIZE), SRC_LANG, TRG_LANG, path, FAST_PATH])
+
+
+if __name__ == "__main__":
+    train_finetune()

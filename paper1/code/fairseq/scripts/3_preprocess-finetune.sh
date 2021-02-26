@@ -20,8 +20,8 @@ fairseq-preprocess \
     --trainpref $BASE_PATH/bpe/train.tok.bpe.$VOCAB_SIZE \
     --validpref $BASE_PATH/bpe/val.tok.bpe.$VOCAB_SIZE \
     --testpref $BASE_PATH/bpe/test.tok.bpe.$VOCAB_SIZE \
+    --destdir $BASE_PATH/data-bin \
+    --workers	$(nproc) \
     --srcdict	$BASE_PATH/dict/dict.${SRC_LANG}.txt \
     --tgtdict	$BASE_PATH/dict/dict.${TRG_LANG}.txt \
-    --destdir $BASE_PATH/data-bin \
-    --workers	$(nproc)
 
