@@ -3,11 +3,11 @@ import pandas as pd
 
 TRAIN = True
 if TRAIN:
-    DATA_PATH = SAVEPATH = "/home/salvacarrion/Documents/Programming/Datasets/Scielo/cleaned/scielo-gma"
+    DATA_PATH = SAVEPATH = "/home/salvacarrion/Documents/Programming/Datasets/Scielo/cleaned-constrained/scielo-gma"
     RAW_FILES = [("es-en-gma-biological.csv", "es-en-gma-health.csv"),
                  ("pt-en-gma-biological.csv", "pt-en-gma-health.csv")]
 else:
-    DATA_PATH = SAVEPATH = "/home/salvacarrion/Documents/Programming/Datasets/Scielo/cleaned/testset_gma"
+    DATA_PATH = SAVEPATH = "/home/salvacarrion/Documents/Programming/Datasets/Scielo/cleaned-constrained/testset_gma"
     RAW_FILES = [("test-gma-en2es-biological.csv", "test-gma-en2es-health.csv"),
                  ("test-gma-en2pt-biological.csv", "test-gma-en2pt-health.csv"),
                  ("test-gma-es2en-biological.csv", "test-gma-es2en-health.csv"),

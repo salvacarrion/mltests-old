@@ -4,3 +4,4 @@ tensorboardX==2.1
 pandas==1.2.2
 matplotlib==3.3.4
 seaborn==0.11.1
+jupyter==1.0.0
