@@ -18,9 +18,9 @@ data = [
     {"Model": "Health+Biological", "Test domain": "Biological", "lang": "es-en", "BLEU": 42.95},
     {"Model": "Health+Biological", "Test domain": "Merged", "lang": "es-en", "BLEU": 41.32},
 
-    {"Model": "Health→Biological\n(Naive)", "Test domain": "Health", "lang": "es-en", "BLEU": 1},
-    {"Model": "Health→Biological\n(Naive)", "Test domain": "Biological", "lang": "es-en", "BLEU": 1},
-    {"Model": "Health→Biological\n(Naive)", "Test domain": "Merged", "lang": "es-en", "BLEU": 1},
+    {"Model": "Health→Biological\n(Naive)", "Test domain": "Health", "lang": "es-en", "BLEU": 37.20},
+    {"Model": "Health→Biological\n(Naive)", "Test domain": "Biological", "lang": "es-en", "BLEU": 43.35},
+    {"Model": "Health→Biological\n(Naive)", "Test domain": "Merged", "lang": "es-en", "BLEU": 40.38},
 
     {"Model": "Health→Biological\n(EWC)", "Test domain": "Health", "lang": "es-en", "BLEU": 1},
     {"Model": "Health→Biological\n(EWC)", "Test domain": "Biological", "lang": "es-en", "BLEU": 1},
@@ -45,9 +45,9 @@ data = [
     {"Model": "Health+Biological", "Test domain": "Biological", "lang": "pt-en", "BLEU": 41.80},
     {"Model": "Health+Biological", "Test domain": "Merged", "lang": "pt-en", "BLEU": 40.74},
 
-    {"Model": "Health→Biological\n(Naive)", "Test domain": "Health", "lang": "pt-en", "BLEU": 1},
-    {"Model": "Health→Biological\n(Naive)", "Test domain": "Biological", "lang": "pt-en", "BLEU": 1},
-    {"Model": "Health→Biological\n(Naive)", "Test domain": "Merged", "lang": "pt-en", "BLEU": 1},
+    {"Model": "Health→Biological\n(Naive)", "Test domain": "Health", "lang": "pt-en", "BLEU": 37.16},
+    {"Model": "Health→Biological\n(Naive)", "Test domain": "Biological", "lang": "pt-en", "BLEU": 41.78},
+    {"Model": "Health→Biological\n(Naive)", "Test domain": "Merged", "lang": "pt-en", "BLEU": 39.77},
 
     {"Model": "Health→Biological\n(EWC)", "Test domain": "Health", "lang": "pt-en", "BLEU": 1},
     {"Model": "Health→Biological\n(EWC)", "Test domain": "Biological", "lang": "pt-en", "BLEU": 1},
@@ -59,30 +59,32 @@ data = [
 ]
 
 df = pd.DataFrame(data, columns=["Model", "Test domain", "lang", "BLEU"])
-df.to_csv(f"../../data/test_data.csv")
+df.to_csv(f"../../data/new/test_data.csv")
+print("Data saved!")
 
 # Select language
-LANG = "es-en"
-df = df[df.lang == LANG]
+for lang in ["es-en", "pt-en"]:
+    df_lang = df[df.lang == lang]
 
-# Draw a nested barplot by species and sex
-g = sns.catplot(data=df, x="Model", y="BLEU", kind="bar", hue="Test domain", legend=False)
-g.fig.set_size_inches(12, 8)
+    # Draw a nested barplot by species and sex
+    g = sns.catplot(data=df_lang, x="Model", y="BLEU", kind="bar", hue="Test domain", legend=False)
+    g.fig.set_size_inches(12, 8)
 
-# properties
-g.set(xlabel='Models', ylabel='BLEU')
-plt.title(f"BLUE scores in different domains | {LANG}")
+    # properties
+    g.set(xlabel='Models', ylabel='BLEU')
+    plt.title(f"BLUE scores in different domains | {lang}")
 
-g.set_xticklabels(rotation=0, horizontalalignment="center")
-plt.legend(loc='upper right')
-plt.tight_layout()
+    g.set_xticklabels(rotation=0, horizontalalignment="center")
+    plt.legend(loc='upper right')
+    plt.tight_layout()
 
-# Save figure
-plt.savefig(f"../../data/images/bleu_scores_{LANG}__2.pdf")
-print("Figure saved!")
+    # Save figure
+    plt.savefig(f"../../data/new/images/bleu_scores_{lang}.pdf")
+    plt.savefig(f"../../data/new/images/bleu_scores_{lang}.jpg")
+    print("Figure saved!")
 
-# Show plot
-plt.show()
-asd = 3
+    # Show plot
+    plt.show()
+    asd = 3
 
 

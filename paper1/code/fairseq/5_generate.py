@@ -15,7 +15,7 @@ DOMAINS = ["health", "biological", "merged"]
 
 
 def generate():
-    EVAL_NAME = "evaluate_test_bleu5"
+    EVAL_NAME = "evaluate_test_bleu5__hbm"
 
     for SRC_LANG, TRG_LANG in [("es", "en"), ("pt", "en")]:
         for domain in DOMAINS:
@@ -48,7 +48,7 @@ def generate():
 
 
 def generate_eval():
-    EVAL_NAME = "evaluate_test_bleu5_seq"
+    EVAL_NAME = "evaluate_test_bleu5__seq"
 
     for SRC_LANG, TRG_LANG in [("es", "en"), ("pt", "en")]:
         dataset1 = f"scielo_health_biological_{SRC_LANG}_{TRG_LANG}"
