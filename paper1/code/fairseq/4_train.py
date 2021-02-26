@@ -38,4 +38,4 @@ def train_finetune():
 
 
 if __name__ == "__main__":
-    train_finetune()
+    train()

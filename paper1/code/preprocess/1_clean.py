@@ -1,11 +1,12 @@
 import os
 import pandas as pd
 from pathlib import Path
-
+import numpy as np
 from paper1.code import utils
 
 
 TRAIN = True
+SUFFLE = True
 CONSTRAINED = True
 
 if TRAIN:
@@ -61,11 +62,20 @@ for fname in RAW_FILES:
     total_old = len(df)
     df = utils.preprocess_dataset(df, src_col=SRC_LANG, trg_col=TRG_LANG)
 
+    # Shuffle dataset
+    if SUFFLE:
+        np.random.seed(123)
+        np.random.shuffle(df.values)
+
     if CONSTRAINED and TRAIN:
         if domain == "health" and "es" in {SRC_LANG, TRG_LANG}:
-            df = df[:123597]
+            max_size = 123597
+            print(f"Limiting size to {max_size}")
+            df = df[:max_size]
         elif domain == "health" and "pt" in {SRC_LANG, TRG_LANG}:
-            df = df[:120301]
+            max_size = 120301
+            print(f"Limiting size to {max_size}")
+            df = df[:max_size]
 
     # Stats
     total_doctypes = df['doctype'].value_counts()

@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 
-TRAIN = False
+TRAIN = True
 if TRAIN:
     DATA_PATH = SAVEPATH = "/home/salvacarrion/Documents/Programming/Datasets/Scielo/cleaned-constrained/scielo-gma"
     RAW_FILES = [("es-en-gma-biological.csv", "es-en-gma-health.csv"),

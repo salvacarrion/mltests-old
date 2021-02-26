@@ -5,8 +5,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 sns.set()
 
-BASE_PATH = "/home/salvacarrion/Documents/Programming/Datasets/Scielo/fairseq/"
-FOLDER_NAME = "constrained"
+BASE_PATH = "/home/salvacarrion/Documents/Programming/Datasets/Scielo/fairseq-unconstrained/"
+FOLDER_NAME = "unconstrained"
 
 DATASETS = [
     "scielo_biological_es_en",
