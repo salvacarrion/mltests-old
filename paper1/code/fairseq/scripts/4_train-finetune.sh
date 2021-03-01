@@ -39,7 +39,7 @@ fairseq-train \
     --reset-lr-scheduler \
     --reset-meters \
     --reset-optimizer \
-    --wandb-project "mltests"
+    --wandb-project "mltests-constraints"
 
 echo "##########################################"
 echo "Training finished!"
