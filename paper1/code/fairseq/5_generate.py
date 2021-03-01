@@ -63,7 +63,7 @@ def generate_eval():
             TEST_DATAPATH = os.path.abspath(os.path.join(BASE_PATH, dataset2))
             OUTPUT_PATH = os.path.abspath(os.path.join(BASE_PATH, EVAL_NAME, dataset1, domain2))
 
-            subprocess.call(['sh', './scripts/3_preprocess-eval.sh', str(VOCAB_SIZE), SRC_LANG, TRG_LANG, MODEL_BASEPATH, TEST_DATAPATH, OUTPUT_PATH, FAST_PATH])
+            subprocess.call(['sh', './scripts/3_preprocess-generate.sh', str(VOCAB_SIZE), SRC_LANG, TRG_LANG, MODEL_BASEPATH, TEST_DATAPATH, OUTPUT_PATH, FAST_PATH])
 
             # Generate them
             print(f"\t- Generating translations for: {domain2}...")
