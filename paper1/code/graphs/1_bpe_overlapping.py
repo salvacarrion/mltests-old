@@ -6,6 +6,7 @@ VOCAB_SIZE = 32000
 LANG_PAIRS = [("es", "en"), ("pt", "en")]
 DOMAINS = ["health", "biological", "merged"]
 rows = []
+FOLDER_NAME = "constrained"
 
 for SRC_LANG, TRG_LANG in LANG_PAIRS:
     vocabs = {}
@@ -47,5 +48,5 @@ df = pd.DataFrame(data=rows)
 print(df)
 
 # Save file
-df.to_csv("../../data/overlapping.csv", index=False)
+df.to_csv(f"../../data/{FOLDER_NAME}/overlapping.csv", index=False)
 print("File saved!")

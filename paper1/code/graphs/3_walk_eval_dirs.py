@@ -12,7 +12,7 @@ else:
     FAST_PATH = "/home/scarrion/packages/fastBPE/fast"
 
 DOMAINS = ["health", "biological", "merged"]
-EVALUATION_NAME = "evaluate_test_bleu5__seq"
+EVALUATION_NAME = "evaluate_test_bleu5__hbm"
 
 
 def walk():
@@ -41,4 +41,4 @@ def walk_finetune():
 
 
 if __name__ == "__main__":
-    walk_finetune()
+    walk()

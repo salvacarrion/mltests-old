@@ -6,7 +6,7 @@ import seaborn as sns
 sns.set()
 
 BASE_PATH = "/home/salvacarrion/Documents/Programming/Datasets/Scielo/fairseq-unconstrained/"
-FOLDER_NAME = "unconstrained"
+FOLDER_NAME = "constrained"
 
 DATASETS = [
     "scielo_biological_es_en",

@@ -5,7 +5,7 @@ import seaborn as sns
 sns.set()
 
 
-data = [
+data_unconstrained = [
     {"Model": "Health", "Test domain": "Health", "lang": "es-en", "BLEU": 39.02},
     {"Model": "Health", "Test domain": "Biological", "lang": "es-en", "BLEU": 39.38},
     {"Model": "Health", "Test domain": "Merged", "lang": "es-en", "BLEU": 39.34},
@@ -58,8 +58,63 @@ data = [
     {"Model": "Health→Biological\n(Ours)", "Test domain": "Merged", "lang": "pt-en", "BLEU": 1},
 ]
 
+data_constrained = [
+    {"Model": "Health", "Test domain": "Health", "lang": "es-en", "BLEU": 29.17},
+    {"Model": "Health", "Test domain": "Biological", "lang": "es-en", "BLEU": 23.28},
+    {"Model": "Health", "Test domain": "Merged", "lang": "es-en", "BLEU": 26.25},
+
+    {"Model": "Biological", "Test domain": "Health", "lang": "es-en", "BLEU": 26.65},
+    {"Model": "Biological", "Test domain": "Biological", "lang": "es-en", "BLEU": 32.98},
+    {"Model": "Biological", "Test domain": "Merged", "lang": "es-en", "BLEU": 29.67},
+
+    {"Model": "Health+Biological", "Test domain": "Health", "lang": "es-en", "BLEU": 35.86},
+    {"Model": "Health+Biological", "Test domain": "Biological", "lang": "es-en", "BLEU": 38.49},
+    {"Model": "Health+Biological", "Test domain": "Merged", "lang": "es-en", "BLEU": 37.26},
+
+    {"Model": "Health→Biological\n(Naive)", "Test domain": "Health", "lang": "es-en", "BLEU": 29.55},
+    {"Model": "Health→Biological\n(Naive)", "Test domain": "Biological", "lang": "es-en", "BLEU": 23.34},
+    {"Model": "Health→Biological\n(Naive)", "Test domain": "Merged", "lang": "es-en", "BLEU": 26.45},
+
+    {"Model": "Health→Biological\n(EWC)", "Test domain": "Health", "lang": "es-en", "BLEU": 1},
+    {"Model": "Health→Biological\n(EWC)", "Test domain": "Biological", "lang": "es-en", "BLEU": 1},
+    {"Model": "Health→Biological\n(EWC)", "Test domain": "Merged", "lang": "es-en", "BLEU": 1},
+
+    {"Model": "Health→Biological\n(Ours)", "Test domain": "Health", "lang": "es-en", "BLEU": 1},
+    {"Model": "Health→Biological\n(Ours)", "Test domain": "Biological", "lang": "es-en", "BLEU": 1},
+    {"Model": "Health→Biological\n(Ours)", "Test domain": "Merged", "lang": "es-en", "BLEU": 1},
+
+    ##
+
+    {"Model": "Health", "Test domain": "Health", "lang": "pt-en", "BLEU": 29.19},
+    {"Model": "Health", "Test domain": "Biological", "lang": "pt-en", "BLEU": 25.42},
+    {"Model": "Health", "Test domain": "Merged", "lang": "pt-en", "BLEU": 27.18},
+
+    {"Model": "Biological", "Test domain": "Health", "lang": "pt-en", "BLEU": 25.48},
+    {"Model": "Biological", "Test domain": "Biological", "lang": "pt-en", "BLEU": 32.24},
+    {"Model": "Biological", "Test domain": "Merged", "lang": "pt-en", "BLEU": 28.92},
+
+    {"Model": "Health+Biological", "Test domain": "Health", "lang": "pt-en", "BLEU": 34.98},
+    {"Model": "Health+Biological", "Test domain": "Biological", "lang": "pt-en", "BLEU": 37.21},
+    {"Model": "Health+Biological", "Test domain": "Merged", "lang": "pt-en", "BLEU": 36.15},
+
+    {"Model": "Health→Biological\n(Naive)", "Test domain": "Health", "lang": "pt-en", "BLEU": 29.20},
+    {"Model": "Health→Biological\n(Naive)", "Test domain": "Biological", "lang": "pt-en", "BLEU": 25.55},
+    {"Model": "Health→Biological\n(Naive)", "Test domain": "Merged", "lang": "pt-en", "BLEU": 27.25},
+
+    {"Model": "Health→Biological\n(EWC)", "Test domain": "Health", "lang": "pt-en", "BLEU": 1},
+    {"Model": "Health→Biological\n(EWC)", "Test domain": "Biological", "lang": "pt-en", "BLEU": 1},
+    {"Model": "Health→Biological\n(EWC)", "Test domain": "Merged", "lang": "pt-en", "BLEU": 1},
+
+    {"Model": "Health→Biological\n(Ours)", "Test domain": "Health", "lang": "pt-en", "BLEU": 1},
+    {"Model": "Health→Biological\n(Ours)", "Test domain": "Biological", "lang": "pt-en", "BLEU": 1},
+    {"Model": "Health→Biological\n(Ours)", "Test domain": "Merged", "lang": "pt-en", "BLEU": 1},
+]
+
+FOLDER_NAME = "constrained"
+data = data_constrained
 df = pd.DataFrame(data, columns=["Model", "Test domain", "lang", "BLEU"])
-df.to_csv(f"../../data/new/test_data.csv")
+df.to_csv(f"../../data/{FOLDER_NAME}/test_data.csv")
+print(df)
 print("Data saved!")
 
 # Select language
@@ -79,8 +134,8 @@ for lang in ["es-en", "pt-en"]:
     plt.tight_layout()
 
     # Save figure
-    plt.savefig(f"../../data/new/images/bleu_scores_{lang}.pdf")
-    plt.savefig(f"../../data/new/images/bleu_scores_{lang}.jpg")
+    plt.savefig(f"../../data/{FOLDER_NAME}/images/bleu_scores_{lang}.pdf")
+    plt.savefig(f"../../data/{FOLDER_NAME}/images/bleu_scores_{lang}.jpg")
     print("Figure saved!")
 
     # Show plot
