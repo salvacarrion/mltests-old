@@ -2,17 +2,17 @@ import os
 import subprocess
 
 VOCAB_SIZE = 32000
-if os.environ.get('MACHINE') == "HOME":
-    print("Local")
-    BASE_PATH = "/home/salvacarrion/Documents/Programming/Datasets/Scielo/fairseq"
-    FAST_PATH = "/home/salvacarrion/Documents/packages/fastBPE/fast"
-else:
-    print("Remote")
-    BASE_PATH = "/home/scarrion/datasets/scielo/fairseq"
-    FAST_PATH = "/home/scarrion/packages/fastBPE/fast"
+# if os.environ.get('MACHINE') == "HOME":
+print("Local")
+BASE_PATH = "/home/salvacarrion/Documents/Programming/Datasets/Scielo/fairseq-constrained"
+FAST_PATH = "/home/salvacarrion/Documents/packages/fastBPE/fast"
+# else:
+#     print("Remote")
+#     BASE_PATH = "/home/scarrion/datasets/scielo/fairseq"
+#     FAST_PATH = "/home/scarrion/packages/fastBPE/fast"
 
 DOMAINS = ["health", "biological", "merged"]
-EVALUATION_NAME = "evaluate_test_bleu5__hbm"
+EVALUATION_NAME = "evaluate_test_bleu5__seq2"
 
 
 def walk():
@@ -41,4 +41,4 @@ def walk_finetune():
 
 
 if __name__ == "__main__":
-    walk()
+    walk_finetune()
