@@ -46,3 +46,12 @@ def preprocess_dataset(df, src_col, trg_col):
     # Remove rows
     df = df.drop(df.index[to_remove])
     return df
+
+
+def human_format(num, idx=None):
+    magnitude = 0
+    while abs(num) >= 1000:
+        magnitude += 1
+        num /= 1000.0
+    # add more suffixes if you need them
+    return '%.2f%s' % (num, ['', 'K', 'M', 'G', 'T', 'P'][magnitude])
