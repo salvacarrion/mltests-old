@@ -33,7 +33,7 @@ fairseq-train \
     --lr-scheduler reduce_lr_on_plateau  \
     --warmup-updates 4000 \
     --dropout 0.1 --weight-decay 0.0001 \
-    --patience 5 \
+    --patience 10 \
     --restore-file $BASE_PATH/checkpoints/health_checkpoint_best.pt \
     --reset-dataloader \
     --reset-lr-scheduler \
